@@ -1,0 +1,20 @@
+Name: NoteVault-api
+Host: 0.0.0.0
+Port: 8888
+
+DevServer:
+  Enabled: true
+  Port: 9090
+
+Log:
+  ServiceName: notevault-api
+  Mode: file
+  Path: logs
+  Level: info
+  Compress: false
+  KeepDays: 30
+  Encoding: json
+
+Auth:
+  AccessSecret: ZmlsZVR5cGUsb21pdGVtcHR5ImAgLy8g5paH5Lu257G75Z6L57K+56Gu5Yy56YWNCgkJVGFnICAg
+  AccessExpire: 7200

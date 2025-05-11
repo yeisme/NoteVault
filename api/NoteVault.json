@@ -1,0 +1,947 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "NoteVault API",
+    "version": "v1"
+  },
+  "host": "127.0.0.1",
+  "basePath": "/",
+  "paths": {
+    "/api/v1/files/": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          ""
+        ],
+        "summary": "列出文件，支持分页、筛选和排序。",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "按用户ID筛选（管理员可能会使用）",
+            "name": "userId",
+            "in": "query",
+            "allowEmptyValue": true
+          },
+          {
+            "type": "string",
+            "description": "按文件名模糊匹配",
+            "name": "fileName",
+            "in": "query",
+            "allowEmptyValue": true
+          },
+          {
+            "type": "string",
+            "description": "文件类型精确匹配",
+            "name": "fileType",
+            "in": "query",
+            "allowEmptyValue": true
+          },
+          {
+            "type": "string",
+            "description": "按单个标签精确匹配 (未来可支持多标签)",
+            "name": "tag",
+            "in": "query",
+            "allowEmptyValue": true
+          },
+          {
+            "type": "integer",
+            "description": "创建时间范围开始 (Unix timestamp)",
+            "name": "createdAtStart",
+            "in": "query",
+            "allowEmptyValue": true
+          },
+          {
+            "type": "integer",
+            "description": "创建时间范围结束 (Unix timestamp)",
+            "name": "createdAtEnd",
+            "in": "query",
+            "allowEmptyValue": true
+          },
+          {
+            "type": "integer",
+            "description": "更新时间范围开始 (Unix timestamp)",
+            "name": "updatedAtStart",
+            "in": "query",
+            "allowEmptyValue": true
+          },
+          {
+            "type": "integer",
+            "description": "更新时间范围结束 (Unix timestamp)",
+            "name": "updatedAtEnd",
+            "in": "query",
+            "allowEmptyValue": true
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "example": 1,
+            "description": "页码",
+            "name": "page",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "example": 10,
+            "description": "每页大小",
+            "name": "pageSize",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "name",
+              "date",
+              "size",
+              "type"
+            ],
+            "type": "string",
+            "description": "排序字段: name, date (updatedAt), size, type",
+            "name": "sortBy",
+            "in": "query",
+            "allowEmptyValue": true
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "排序顺序",
+            "name": "order",
+            "in": "query",
+            "allowEmptyValue": true
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "files": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "fileId",
+                      "userId",
+                      "fileName",
+                      "fileType",
+                      "contentType",
+                      "size",
+                      "path",
+                      "createdAt",
+                      "updatedAt",
+                      "version"
+                    ],
+                    "properties": {
+                      "contentType": {
+                        "description": "MIME类型，例如：\"application/pdf\", \"image/jpeg\", \"text/plain\"",
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "description": "创建时间（Unix时间戳）",
+                        "type": "integer"
+                      },
+                      "description": {
+                        "description": "描述",
+                        "type": "string"
+                      },
+                      "fileId": {
+                        "description": "文件唯一ID",
+                        "type": "string"
+                      },
+                      "fileName": {
+                        "description": "文件名",
+                        "type": "string"
+                      },
+                      "fileType": {
+                        "description": "文件类型，例如：\"document\", \"image\", \"video\", \"text\"",
+                        "type": "string"
+                      },
+                      "path": {
+                        "description": "存储路径或键",
+                        "type": "string"
+                      },
+                      "size": {
+                        "description": "文件大小（字节）",
+                        "type": "integer"
+                      },
+                      "tags": {
+                        "description": "标签",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "updatedAt": {
+                        "description": "更新时间（Unix时间戳）",
+                        "type": "integer"
+                      },
+                      "userId": {
+                        "description": "文件所属用户ID",
+                        "type": "string"
+                      },
+                      "version": {
+                        "description": "文件当前版本号",
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                "page": {
+                  "type": "integer"
+                },
+                "pageSize": {
+                  "type": "integer"
+                },
+                "totalCount": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/batch/delete": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          ""
+        ],
+        "summary": "批量删除文件。",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "fileIds"
+              ],
+              "properties": {
+                "fileIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "failed": {
+                  "description": "删除失败的文件ID列表 (及原因，可选)",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "message": {
+                  "type": "string"
+                },
+                "succeeded": {
+                  "description": "成功删除的文件ID列表",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/download/{fileId}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          ""
+        ],
+        "summary": "根据文件ID下载文件。可选下载特定版本。",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "fileId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "可选，指定下载特定版本的文件",
+            "name": "versionId",
+            "in": "query",
+            "allowEmptyValue": true
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/v1/files/metadata/{fileId}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          ""
+        ],
+        "summary": "获取特定文件的元数据。可选获取特定版本的元数据。",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "fileId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "可选，获取特定版本文件的元数据",
+            "name": "versionId",
+            "in": "query",
+            "allowEmptyValue": true
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "metadata": {
+                  "type": "object",
+                  "required": [
+                    "fileId",
+                    "userId",
+                    "fileName",
+                    "fileType",
+                    "contentType",
+                    "size",
+                    "path",
+                    "createdAt",
+                    "updatedAt",
+                    "version"
+                  ],
+                  "properties": {
+                    "contentType": {
+                      "description": "MIME类型，例如：\"application/pdf\", \"image/jpeg\", \"text/plain\"",
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "description": "创建时间（Unix时间戳）",
+                      "type": "integer"
+                    },
+                    "description": {
+                      "description": "描述",
+                      "type": "string"
+                    },
+                    "fileId": {
+                      "description": "文件唯一ID",
+                      "type": "string"
+                    },
+                    "fileName": {
+                      "description": "文件名",
+                      "type": "string"
+                    },
+                    "fileType": {
+                      "description": "文件类型，例如：\"document\", \"image\", \"video\", \"text\"",
+                      "type": "string"
+                    },
+                    "path": {
+                      "description": "存储路径或键",
+                      "type": "string"
+                    },
+                    "size": {
+                      "description": "文件大小（字节）",
+                      "type": "integer"
+                    },
+                    "tags": {
+                      "description": "标签",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "updatedAt": {
+                      "description": "更新时间（Unix时间戳）",
+                      "type": "integer"
+                    },
+                    "userId": {
+                      "description": "文件所属用户ID",
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "文件当前版本号",
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          ""
+        ],
+        "summary": "更新特定文件的元数据。这通常会创建一个新版本。",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "fileId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "commitMessage": {
+                  "description": "版本提交信息",
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "fileName": {
+                  "type": "string"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "metadata": {
+                  "description": "更新后的元数据，包含新的版本号",
+                  "type": "object",
+                  "required": [
+                    "fileId",
+                    "userId",
+                    "fileName",
+                    "fileType",
+                    "contentType",
+                    "size",
+                    "path",
+                    "createdAt",
+                    "updatedAt",
+                    "version"
+                  ],
+                  "properties": {
+                    "contentType": {
+                      "description": "MIME类型，例如：\"application/pdf\", \"image/jpeg\", \"text/plain\"",
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "description": "创建时间（Unix时间戳）",
+                      "type": "integer"
+                    },
+                    "description": {
+                      "description": "描述",
+                      "type": "string"
+                    },
+                    "fileId": {
+                      "description": "文件唯一ID",
+                      "type": "string"
+                    },
+                    "fileName": {
+                      "description": "文件名",
+                      "type": "string"
+                    },
+                    "fileType": {
+                      "description": "文件类型，例如：\"document\", \"image\", \"video\", \"text\"",
+                      "type": "string"
+                    },
+                    "path": {
+                      "description": "存储路径或键",
+                      "type": "string"
+                    },
+                    "size": {
+                      "description": "文件大小（字节）",
+                      "type": "integer"
+                    },
+                    "tags": {
+                      "description": "标签",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "updatedAt": {
+                      "description": "更新时间（Unix时间戳）",
+                      "type": "integer"
+                    },
+                    "userId": {
+                      "description": "文件所属用户ID",
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "文件当前版本号",
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/upload": {
+      "post": {
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          ""
+        ],
+        "summary": "上传一个新文件。实际文件以 multipart/form-data 形式发送。",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "可选：如果未提供，则使用上传文件的名称",
+            "name": "fileName",
+            "in": "formData",
+            "allowEmptyValue": true
+          },
+          {
+            "type": "string",
+            "description": "可选：可以推断或指定",
+            "name": "fileType",
+            "in": "formData",
+            "allowEmptyValue": true
+          },
+          {
+            "type": "string",
+            "description": "描述",
+            "name": "description",
+            "in": "formData",
+            "allowEmptyValue": true
+          },
+          {
+            "type": "string",
+            "description": "逗号分隔的标签",
+            "name": "tags",
+            "in": "formData",
+            "allowEmptyValue": true
+          },
+          {
+            "type": "string",
+            "description": "版本提交信息",
+            "name": "commitMessage",
+            "in": "formData",
+            "allowEmptyValue": true
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "contentType": {
+                  "type": "string"
+                },
+                "fileId": {
+                  "type": "string"
+                },
+                "fileName": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "integer"
+                },
+                "version": {
+                  "description": "上传后的文件版本号",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}": {
+      "delete": {
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          ""
+        ],
+        "summary": "根据文件ID删除文件。",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "fileId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/versions": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          ""
+        ],
+        "summary": "获取文件的版本历史。",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "fileId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "fileId": {
+                  "type": "string"
+                },
+                "versions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "version",
+                      "size",
+                      "createdAt",
+                      "contentType"
+                    ],
+                    "properties": {
+                      "commitMessage": {
+                        "description": "此版本的提交信息",
+                        "type": "string"
+                      },
+                      "contentType": {
+                        "description": "该版本的文件MIME类型",
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "description": "版本创建时间",
+                        "type": "integer"
+                      },
+                      "size": {
+                        "description": "文件大小",
+                        "type": "integer"
+                      },
+                      "version": {
+                        "description": "版本号",
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/versions/diff": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          ""
+        ],
+        "summary": "(高级) 获取文件两个版本之间的差异信息 (主要针对文本文件)。",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "fileId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "基础版本号",
+            "name": "baseVersion",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "目标版本号",
+            "name": "targetVersion",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "baseVersion": {
+                  "type": "integer"
+                },
+                "diffContent": {
+                  "description": "差异内容 (例如 unified diff 格式)",
+                  "type": "string"
+                },
+                "fileId": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "targetVersion": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/versions/revert": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          ""
+        ],
+        "summary": "将文件恢复到特定版本。",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "fileId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "version"
+              ],
+              "properties": {
+                "commitMessage": {
+                  "description": "恢复操作的提交信息",
+                  "type": "string"
+                },
+                "version": {
+                  "description": "要恢复到的版本号",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "metadata": {
+                  "description": "恢复后，文件当前的元数据（版本已更新）",
+                  "type": "object",
+                  "required": [
+                    "fileId",
+                    "userId",
+                    "fileName",
+                    "fileType",
+                    "contentType",
+                    "size",
+                    "path",
+                    "createdAt",
+                    "updatedAt",
+                    "version"
+                  ],
+                  "properties": {
+                    "contentType": {
+                      "description": "MIME类型，例如：\"application/pdf\", \"image/jpeg\", \"text/plain\"",
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "description": "创建时间（Unix时间戳）",
+                      "type": "integer"
+                    },
+                    "description": {
+                      "description": "描述",
+                      "type": "string"
+                    },
+                    "fileId": {
+                      "description": "文件唯一ID",
+                      "type": "string"
+                    },
+                    "fileName": {
+                      "description": "文件名",
+                      "type": "string"
+                    },
+                    "fileType": {
+                      "description": "文件类型，例如：\"document\", \"image\", \"video\", \"text\"",
+                      "type": "string"
+                    },
+                    "path": {
+                      "description": "存储路径或键",
+                      "type": "string"
+                    },
+                    "size": {
+                      "description": "文件大小（字节）",
+                      "type": "integer"
+                    },
+                    "tags": {
+                      "description": "标签",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "updatedAt": {
+                      "description": "更新时间（Unix时间戳）",
+                      "type": "integer"
+                    },
+                    "userId": {
+                      "description": "文件所属用户ID",
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "文件当前版本号",
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-date": "2025-05-09 17:51:02",
+  "x-description": "This is a goctl generated swagger file.",
+  "x-github": "https://github.com/zeromicro/go-zero",
+  "x-go-zero-doc": "https://go-zero.dev/",
+  "x-goctl-version": "1.8.3"
+}
