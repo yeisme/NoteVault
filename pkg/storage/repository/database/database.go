@@ -3,65 +3,77 @@ package database
 import (
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/yeisme/notevault/internal/config"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/gorm"
 )
 
-// 声明为全局变量，包含互斥锁保证并发安全
 var (
-	DB     *gorm.DB
-	dbOnce sync.Once
-	dbLock sync.RWMutex
-
-	// 驱动注册表
+	db      *gorm.DB
+	dbOnce  sync.Once
+	mu      sync.RWMutex
 	drivers = make(map[string]DBDriver)
 )
 
-// GetDB 安全地获取数据库连接
-func GetDB() *gorm.DB {
-	dbLock.RLock()
-	defer dbLock.RUnlock()
-	return DB
-}
-
 // registerDriver 注册数据库驱动
 func registerDriver(name string, driver DBDriver) {
+	mu.Lock()
+	defer mu.Unlock()
 	drivers[name] = driver
 }
 
-
 // InitDatabase 初始化数据库连接
-// config 中应该包含数据库的配置参数
-func InitDatabase(config config.Config) error {
+func InitDatabase(dbConfig config.DatabaseConfig) error {
 	var err error
 	dbOnce.Do(func() {
-		driver, findErr := NewDatabaseDriver(config.Database.Driver)
-		if findErr != nil {
-			err = findErr
+		logx.Infof("Initializing database connection with driver: %s", dbConfig.Driver)
+
+		mu.RLock()
+		driver, ok := drivers[dbConfig.Driver]
+		mu.RUnlock()
+
+		if !ok {
+			err = fmt.Errorf("unsupported database driver: %s", dbConfig.Driver)
 			return
 		}
 
-		db, connectErr := driver.Connect(config)
-		if connectErr != nil {
-			err = connectErr
+		// 连接数据库
+		db, err = driver.Connect(dbConfig)
+		if err != nil {
+			logx.Errorf("Failed to connect to database: %v", err)
 			return
 		}
 
-		dbLock.Lock()
-		DB = db
-		dbLock.Unlock()
+		// 配置连接池
+		sqlDB, sqlErr := db.DB()
+		if sqlErr != nil {
+			err = fmt.Errorf("failed to get sql.DB: %w", sqlErr)
+			return
+		}
+
+		if dbConfig.MaxOpenConn > 0 {
+			sqlDB.SetMaxOpenConns(dbConfig.MaxOpenConn)
+		}
+		if dbConfig.MaxIdleConn > 0 {
+			sqlDB.SetMaxIdleConns(dbConfig.MaxIdleConn)
+		}
+		if dbConfig.MaxLifetime > 0 {
+			sqlDB.SetConnMaxLifetime(time.Duration(dbConfig.MaxLifetime) * time.Second)
+		}
+
+		logx.Info("Database connection initialized successfully")
 	})
+
 	return err
 }
 
-// NewDatabaseDriver 创建数据库驱动实例
-func NewDatabaseDriver(driverName string) (DBDriver, error) {
-	driver, ok := drivers[driverName]
-	if !ok {
-		logx.Infof("Available drivers: %v", drivers)
-		return nil, fmt.Errorf("unsupported database driver: %s", driverName)
+// GetDB 获取数据库连接
+func GetDB() *gorm.DB {
+	if db == nil {
+		logx.Error("Database connection is not initialized")
+		return nil
 	}
-	return driver, nil
+	return db
 }

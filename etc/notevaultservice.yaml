@@ -18,3 +18,25 @@ Log:
 Auth:
   AccessSecret: ZmlsZVR5cGUsb21pdGVtcHR5ImAgLy8g5paH5Lu257G75Z6L57K+56Gu5Yy56YWNCgkJVGFnICAg
   AccessExpire: 7200
+
+# 存储相关配置
+storage:
+  # 数据库配置
+  Database:
+    # 数据库驱动类型: mysql/sqlite/postgres
+    Driver: postgres
+    # 数据库连接字符串
+    # MySQL示例: root:password@tcp(localhost:3306)/notevault?charset=utf8mb4&parseTime=True&loc=Local
+    # SQLite示例: ./data/notevault.db
+    # PostgreSQL示例: postgres://username:password@localhost:5432/notevault?sslmode=disable
+    DSN: postgres://notevault:notevault@localhost:5432/notevault?sslmode=disable
+    # 最大连接数
+    MaxOpenConn: 10
+    # 最大空闲连接数
+    MaxIdleConn: 5
+    # 连接最大生存时间(秒)
+    MaxLifetime: 3600
+
+  # oss 对象存储配置
+
+  # cache 缓存配置

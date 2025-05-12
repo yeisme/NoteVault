@@ -15,7 +15,7 @@ func init() {
 
 type MySQLDriver struct{}
 
-func (d *MySQLDriver) Connect(config config.Config) (*gorm.DB, error) {
-	dsn := config.Database.DSN
+func (d *MySQLDriver) Connect(databaseConfig config.DatabaseConfig) (*gorm.DB, error) {
+	dsn := databaseConfig.DSN
 	return gorm.Open(mysql.Open(dsn), &gorm.Config{})
 }

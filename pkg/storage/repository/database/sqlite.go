@@ -15,7 +15,7 @@ func init() {
 
 type SQLiteDriver struct{}
 
-func (d *SQLiteDriver) Connect(config config.Config) (*gorm.DB, error) {
-    dbPath := config.Database.DSN
+func (d *SQLiteDriver) Connect(databaseConfig config.DatabaseConfig) (*gorm.DB, error) {
+    dbPath := databaseConfig.DSN
     return gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 }

@@ -7,5 +7,5 @@ import (
 
 // DBDriver 定义数据库驱动接口
 type DBDriver interface {
-	Connect(config config.Config) (*gorm.DB, error)
+	Connect(config.DatabaseConfig) (*gorm.DB, error)
 }

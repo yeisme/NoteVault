@@ -11,6 +11,8 @@ import (
 )
 
 var (
+	dryrun *bool
+
 	serverCmd = &cobra.Command{
 		Use:   "server",
 		Short: "Start the server",
@@ -18,9 +20,22 @@ var (
 			// 解析配置文件
 			c, filePathToLoad := etc.LoadConfig(ConfigFile)
 
+			logx.Infof("LoadConfig: %s", filePathToLoad)
+			
 			// 初始化数据库连接
-			if err := storage.InitStorage(c); err != nil {
-				return err
+			if err := storage.InitStorage(c.Storage); err != nil {
+				if *dryrun {
+					logx.Errorf("Database connection check failed: %v", err)
+					logx.Info("Running in dry run mode, continuing despite database errors")
+				} else {
+					return err
+				}
+			}
+
+			// 如果是干启动模式，输出配置检查成功并退出
+			if *dryrun {
+				logx.Info("Configuration check completed, Dry run completed, exiting...")
+				return nil
 			}
 
 			server := rest.MustNewServer(c.RestConf)
@@ -28,10 +43,14 @@ var (
 
 			ctx := svc.NewServiceContext(c)
 			handler.RegisterHandlers(server, ctx)
-			logx.Infof("LoadConfig: %s Starting server at %s:%d...\n", filePathToLoad, c.Host, c.Port)
+			logx.Infof("Starting server at %s:%d...\n", c.Host, c.Port)
 			server.Start()
 			return nil
 		},
 		Example: `notevault server -f ./etc/notevaultservice.yaml`,
 	}
 )
+
+func init() {
+	dryrun = serverCmd.Flags().BoolP("dryrun", "d", false, "dryrun mode, only check config and db connection")
+}
