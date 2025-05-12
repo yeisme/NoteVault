@@ -4,8 +4,11 @@ import (
 	"github.com/yeisme/notevault/cmd"
 )
 
-const version = "v1.0.0"
+const (
+	version     string = "v0.0.1"
+	ENVIRONMENT string = "Debug"
+)
 
 func main() {
-	cmd.Execute(version)
+	cmd.Execute(version, ENVIRONMENT)
 }

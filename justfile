@@ -68,7 +68,7 @@ snapshot:
     goreleaser release --snapshot --clean
     @echo "Snapshot build complete."
 
-# Release the project（若无 Git 标签则 fallback 到 snapshot）
+# Release the project (If no tags are found, it will use snapshot)
 release:
     @echo "🛠 Build release"
     @if [ -z "$(git tag --list)" ]; then \
@@ -82,6 +82,7 @@ release:
 # Clean the go build binaries
 clean:
     @echo "Cleaning up build artifacts, installed packages, and cache..."
+    rm -rf dist/
     go clean -x
     @echo "Cleanup complete."
 

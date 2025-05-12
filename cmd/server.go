@@ -5,6 +5,7 @@ import (
 	"github.com/yeisme/notevault/etc"
 	"github.com/yeisme/notevault/internal/handler"
 	"github.com/yeisme/notevault/internal/svc"
+	"github.com/yeisme/notevault/pkg/storage"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/rest"
 )
@@ -14,7 +15,14 @@ var (
 		Use:   "server",
 		Short: "Start the server",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// 解析配置文件
 			c, filePathToLoad := etc.LoadConfig(ConfigFile)
+
+			// 初始化数据库连接
+			if err := storage.InitStorage(c); err != nil {
+				return err
+			}
+
 			server := rest.MustNewServer(c.RestConf)
 			defer server.Stop()
 
