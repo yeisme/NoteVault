@@ -1,7 +1,7 @@
 {
     "gopls": {
         "buildFlags": [
-            "-tags=all"
+            "-tags=mysql sqlite3"
         ]
     }
 }

@@ -14,17 +14,17 @@ gen-doc:
     goctl api doc --dir . -o api
     @echo "Documentation generation complete."
 
-# Placeholder for build task, assuming you might have one
-build ENV="debug": dep-fmt
-    @echo "Building the project ({{ENV}})..."
+# Build the project with specified environment and drivers
+build ENV="debug" DRIVERS="mysql,sqlite3,postgres":
+    @echo "Building the project with environment: {{ENV}} and drivers: {{DRIVERS}}..."
     @if [ "{{ENV}}" = "debug" ]; then \
-        go build -work -x -v .; \
+        go build -work -x -v -tags={{DRIVERS}} .; \
     elif [ "{{ENV}}" = "release" ]; then \
-        go build -v -trimpath -ldflags="-s -w" .; \
+        go build -v -trimpath -tags={{DRIVERS}} -ldflags="-s -w" .; \
     else \
         echo "Invalid build environment. Use 'debug' or 'release'."; exit 1; \
     fi
-    @echo "Build complete."
+    @echo "Build complete for drivers: {{DRIVERS}}."
 
 # Update dependencies and tidy up the package
 dep-fmt:
@@ -53,6 +53,7 @@ gen-go:
     @echo "API file generation complete."
 
 # Help
+[private]
 help:
     @just --list
 
@@ -62,17 +63,17 @@ hot:
     air -c .air.toml
     @echo "Hot reload started."
 
-# Use goreleaser to build and release the project
+# Use goreleaser to build and release the project (snapshot)
 snapshot:
     @echo "🛠 Build snapshot"
     goreleaser release --snapshot --clean
     @echo "Snapshot build complete."
 
 # Release the project (If no tags are found, it will use snapshot)
-release:
+goreleaser:
     @echo "🛠 Build release"
     @if [ -z "$(git tag --list)" ]; then \
-        echo "⚠️ No Git tags found, switching to snapshot release"; \
+        @echo "⚠️ No Git tags found, switching to snapshot release"; \
         just snapshot; \
     else \
         goreleaser release --clean; \
@@ -87,11 +88,11 @@ clean:
     @echo "Cleanup complete."
 
 alias b := build
-alias d := dep-fmt
+alias df := dep-fmt
 alias g := gen-go
 alias doc := gen-doc
 alias n := snapshot
-alias r := release
+alias r := goreleaser
 alias c := clean
 alias i := init
 alias h := hot

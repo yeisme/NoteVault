@@ -1,4 +1,5 @@
-//go:build mysql || all
+//go:build mysql
+// +build mysql
 
 package database
 
@@ -8,16 +9,13 @@ import (
 	"gorm.io/gorm"
 )
 
-type mysqlDriver struct{}
-
-func newMySQLDriver() DBDriver {
-	return &mysqlDriver{}
+func init() {
+	registerDriver("mysql", &MySQLDriver{})
 }
 
-func (d *mysqlDriver) Connect(cfg config.Config) (*gorm.DB, error) {
-	db, err := gorm.Open(mysql.Open(cfg.Database.DSN), &gorm.Config{})
-	if err != nil {
-		return nil, err
-	}
-	return db, nil
+type MySQLDriver struct{}
+
+func (d *MySQLDriver) Connect(config config.Config) (*gorm.DB, error) {
+	dsn := config.Database.DSN
+	return gorm.Open(mysql.Open(dsn), &gorm.Config{})
 }

@@ -1,4 +1,5 @@
-//go:build sqlite || all
+//go:build sqlite3
+// +build sqlite3
 
 package database
 
@@ -8,16 +9,13 @@ import (
 	"gorm.io/gorm"
 )
 
-type sqliteDriver struct{}
-
-func newSQLiteDriver() DBDriver {
-	return &sqliteDriver{}
+func init() {
+    registerDriver("sqlite3", &SQLiteDriver{})
 }
 
-func (d *sqliteDriver) Connect(cfg config.Config) (*gorm.DB, error) {
-	db, err := gorm.Open(sqlite.Open(cfg.Database.DSN), &gorm.Config{})
-	if err != nil {
-		return nil, err
-	}
-	return db, nil
+type SQLiteDriver struct{}
+
+func (d *SQLiteDriver) Connect(config config.Config) (*gorm.DB, error) {
+    dbPath := config.Database.DSN
+    return gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 }
