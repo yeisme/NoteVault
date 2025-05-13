@@ -1,13 +1,17 @@
 package main
 
 import (
+	_ "embed"
+
 	"github.com/yeisme/notevault/cmd"
 )
 
 const (
-	version     string = "v0.0.1"
 	ENVIRONMENT string = "Debug"
 )
+
+//go:embed version
+var version string
 
 func main() {
 	cmd.Execute(version, ENVIRONMENT)

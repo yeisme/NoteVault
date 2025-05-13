@@ -21,7 +21,7 @@ var (
 			c, filePathToLoad := etc.LoadConfig(ConfigFile)
 
 			logx.Infof("LoadConfig: %s", filePathToLoad)
-			
+
 			// 初始化数据库连接
 			if err := storage.InitStorage(c.Storage); err != nil {
 				if *dryrun {

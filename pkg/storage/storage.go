@@ -14,7 +14,6 @@ func InitStorage(storageConfig config.StorageConfig) error {
 		return err
 	}
 
-
 	// 这里可以添加其他存储初始化，如对象存储、缓存等
 
 	return nil

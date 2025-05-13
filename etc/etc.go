@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/spf13/viper"
 	"github.com/yeisme/notevault/internal/config"
 	"github.com/zeromicro/go-zero/core/conf"
 )
@@ -15,27 +16,8 @@ var (
 	// DefaultConfigFile is the default name of the config file to search for.
 	DefaultConfigFile = ProjectName + "service." + configType
 	// DefaultSearchPaths are the default paths to search for config files
-	DefaultSearchPaths = []string{".", "./etc/", "/etc/another-mentor/"}
+	DefaultSearchPaths = []string{".", "./etc/", "/etc/another-mentor/", "/app/etc/"}
 )
-
-// findConfigFile 在给定的搜索路径中查找指定的配置文件
-func findConfigFile(filename string, searchPaths []string) (string, bool) {
-
-	if filename == "" {
-		return "", false
-	}
-
-	for _, path := range searchPaths {
-		if path == "" {
-			continue
-		}
-		potentialPath := filepath.Join(path, filename)
-		if _, err := os.Stat(potentialPath); err == nil {
-			return potentialPath, true
-		}
-	}
-	return "", false
-}
 
 // getSearchPaths returns a slice of paths to search for configuration files.
 func getSearchPaths() []string {
@@ -60,34 +42,38 @@ func getSearchPaths() []string {
 
 // LoadConfig loads the configuration from the specified file or searches for it in predefined paths.
 // If configFileArg is empty, it will look for the default config file in the search paths.
-// If configFileArg is provided, it will check if the file exists in the specified path or search for it in the predefined paths.
-// It panics if the config file is not found in any of the paths.
-func LoadConfig(configFileArg string) (config.Config, string) {
+// If configFileArg is provided, it will be used directly as the config file path.
+// It panics if the config file is not found or cannot be parsed.
+func LoadConfig(configFilePath string) (config.Config, string) {
 	c := new(config.Config)
-	searchPaths := getSearchPaths()
+	v := viper.New()
 
-	var filePathToLoad string
-	var found bool
+	v.SetConfigType(configType)
 
-	if configFileArg == "" {
-		// If configFileArg is empty, look for the default config file
-		filePathToLoad, found = findConfigFile(DefaultConfigFile, searchPaths)
-
+	if configFilePath != "" {
+		v.SetConfigFile(configFilePath)
 	} else {
-		// First check if the provided config file exists directly
-		_, err := os.Stat(configFileArg)
-		if err == nil {
-			filePathToLoad = configFileArg
-			found = true
-		} else if os.IsNotExist(err) {
-			// If the file does not exist, try to find it in the search paths
-			filePathToLoad, found = findConfigFile(configFileArg, searchPaths)
+		v.SetConfigName(ProjectName + "service") // Name of config file (without extension)
+
+		searchPaths := getSearchPaths()
+		for _, path := range searchPaths {
+			v.AddConfigPath(path) // Add path to search paths
 		}
 	}
-	if !found {
-		panic(fmt.Sprintf("default config file %s not found in search paths: %v", DefaultConfigFile, searchPaths))
+
+	if err := v.ReadInConfig(); err != nil {
+		if configFilePath == "" {
+			// Error occurred while searching for the default config file
+			panic(fmt.Sprintf("default config file %s (name: %s, type: %s) not found in search paths %v. Error: %s",
+				DefaultConfigFile, ProjectName+"service", configType, getSearchPaths(), err))
+		} else {
+			// Error occurred while loading the specified config file
+			panic(fmt.Sprintf("error loading config file %s: %s", configFilePath, err))
+		}
 	}
 
-	conf.MustLoad(filePathToLoad, c)
-	return *c, filePathToLoad
+	// 使用 gozero 的 conf 包来解析配置
+	conf.MustLoad(v.ConfigFileUsed(), c)
+
+	return *c, v.ConfigFileUsed()
 }

@@ -1,6 +1,4 @@
-// 默认使用 PostgreSQL 数据库
-// 需要安装 PostgreSQL 驱动
-// 如果需要 mysql sqlite 及其他驱动，请在编译时指定
+// default use the postgres driver, even if the driver is not specified, it will use the postgres driver
 
 package database
 

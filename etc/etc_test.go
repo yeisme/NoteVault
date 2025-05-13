@@ -1,80 +1,13 @@
 package etc
 
 import (
+	_ "embed"
 	"os"
 	"path/filepath"
 	"reflect"
 	"slices"
 	"testing"
 )
-
-// Test_findConfigFile tests the findConfigFile function
-func Test_findConfigFile(t *testing.T) {
-	// Create a temporary directory and file for testing
-	tmpDir := t.TempDir()
-	testFilePath := filepath.Join(tmpDir, "testconfig.yaml")
-	if err := os.WriteFile(testFilePath, []byte("test content"), 0644); err != nil {
-		t.Fatalf("Failed to create test file: %v", err)
-	}
-
-	type args struct {
-		filename    string
-		searchPaths []string
-	}
-	tests := []struct {
-		name  string
-		args  args
-		want  string
-		want1 bool
-	}{{
-		name: "empty filename",
-		args: args{
-			filename:    "",
-			searchPaths: []string{tmpDir},
-		},
-		want:  "",
-		want1: false,
-	},
-		{
-			name: "file exists in path",
-			args: args{
-				filename:    "testconfig.yaml",
-				searchPaths: []string{tmpDir},
-			},
-			want:  testFilePath,
-			want1: true,
-		},
-		{
-			name: "file does not exist",
-			args: args{
-				filename:    "nonexistent.yaml",
-				searchPaths: []string{tmpDir},
-			},
-			want:  "",
-			want1: false,
-		},
-		{
-			name: "empty search path",
-			args: args{
-				filename:    "testconfig.yaml",
-				searchPaths: []string{""},
-			},
-			want:  "",
-			want1: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := findConfigFile(tt.args.filename, tt.args.searchPaths)
-			if got != tt.want {
-				t.Errorf("findConfigFile() got = %v, want %v", got, tt.want)
-			}
-			if got1 != tt.want1 {
-				t.Errorf("findConfigFile() got1 = %v, want %v", got1, tt.want1)
-			}
-		})
-	}
-}
 
 // Test_getSearchPaths tests the getSearchPaths function
 func Test_getSearchPaths(t *testing.T) {
@@ -145,6 +78,9 @@ func Test_getSearchPaths(t *testing.T) {
 	}
 }
 
+//go:embed notevaultservice.yaml
+var testContent []byte
+
 // TestLoadConfig tests the LoadConfig function
 func TestLoadConfig(t *testing.T) {
 	// Create temporary test files
@@ -153,19 +89,10 @@ func TestLoadConfig(t *testing.T) {
 	customConfigPath := filepath.Join(tmpDir, "custom.yaml")
 
 	// Write test content to files
-	testContent := `
-Name: "TestService"
-Host: "localhost"
-Port: 8080
-Auth:
-  AccessSecret: strings
-  AccessExpire: 7200
-`
-
-	if err := os.WriteFile(defaultConfigPath, []byte(testContent), 0644); err != nil {
+	if err := os.WriteFile(defaultConfigPath, testContent, 0644); err != nil {
 		t.Fatalf("Failed to create default config file: %v", err)
 	}
-	if err := os.WriteFile(customConfigPath, []byte(testContent), 0644); err != nil {
+	if err := os.WriteFile(customConfigPath, testContent, 0644); err != nil {
 		t.Fatalf("Failed to create custom config file: %v", err)
 	}
 

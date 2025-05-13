@@ -1,4 +1,5 @@
 # Default task
+[private]
 default: help
 API_FILE:= "./NoteVault.api"
 
@@ -14,9 +15,9 @@ gen-doc:
     goctl api doc --dir . -o api
     @echo "Documentation generation complete."
 
-# Build the project with specified environment and drivers
-build ENV="debug" DRIVERS="mysql,sqlite3,postgres":
-    @echo "Building the project with environment: {{ENV}} and drivers: {{DRIVERS}}..."
+# Build the project with specified environment and external drivers (e.g., mysql, sqlite3)
+build ENV="debug" DRIVERS="mysql": dep-fmt
+    @echo "Building the project with environment: {{ENV}} and external drivers: {{DRIVERS}}..."
     @if [ "{{ENV}}" = "debug" ]; then \
         go build -work -x -v -tags={{DRIVERS}} .; \
     elif [ "{{ENV}}" = "release" ]; then \
@@ -25,6 +26,10 @@ build ENV="debug" DRIVERS="mysql,sqlite3,postgres":
         echo "Invalid build environment. Use 'debug' or 'release'."; exit 1; \
     fi
     @echo "Build complete for drivers: {{DRIVERS}}."
+
+# Alias for building with sqlite3 driver
+b3: dep-fmt
+    just build debug sqlite3
 
 # Update dependencies and tidy up the package
 dep-fmt:
@@ -53,30 +58,32 @@ gen-go:
     @echo "API file generation complete."
 
 # Help
-[private]
 help:
     @just --list
 
 # hot-reload use air 
-hot:
+hot: dep-fmt
     @echo "Starting hot reload..."
     air -c .air.toml
     @echo "Hot reload started."
 
 # Use goreleaser to build and release the project (snapshot)
-snapshot:
+snapshot: dep-fmt
     @echo "🛠 Build snapshot"
     goreleaser release --snapshot --clean
     @echo "Snapshot build complete."
 
-# Release the project (If no tags are found, it will use snapshot)
-goreleaser:
+# Release the project (local, remote, or test)
+goreleaser MODE="local": dep-fmt
     @echo "🛠 Build release"
-    @if [ -z "$(git tag --list)" ]; then \
-        @echo "⚠️ No Git tags found, switching to snapshot release"; \
+    @if [ "{{MODE}}" = "local" ]; then \
         just snapshot; \
-    else \
+    elif [ "{{MODE}}" = "remote" ]; then \
         goreleaser release --clean; \
+    elif [ "{{MODE}}" = "test" ]; then \
+        goreleaser release --clean --skip=publish; \
+    else \
+        echo "Invalid mode. Use 'local' or 'remote'."; exit 1; \
     fi
     @echo "Release build complete."
 
@@ -84,6 +91,7 @@ goreleaser:
 clean:
     @echo "Cleaning up build artifacts, installed packages, and cache..."
     rm -rf dist/
+    rm -rf tmp/
     go clean -x
     @echo "Cleanup complete."
 
