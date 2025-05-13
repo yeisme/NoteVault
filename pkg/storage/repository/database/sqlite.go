@@ -17,5 +17,5 @@ type SQLiteDriver struct{}
 
 func (d *SQLiteDriver) Connect(databaseConfig config.DatabaseConfig) (*gorm.DB, error) {
 	dbPath := databaseConfig.DSN
-	return gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+	return gorm.Open(sqlite.Open(dbPath), gormConfig)
 }

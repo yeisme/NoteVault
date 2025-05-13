@@ -7,9 +7,9 @@ import (
 )
 
 // InitStorage 初始化所有存储相关组件
-func InitStorage(storageConfig config.StorageConfig) error {
+func InitStorage(storageConfig config.StorageConfig, logConfig logx.LogConf) error {
 	// 初始化数据库连接
-	if err := database.InitDatabase(storageConfig.Database); err != nil {
+	if err := database.InitDatabase(storageConfig.Database, logConfig); err != nil {
 		logx.Errorf("InitDatabase err: %v", err)
 		return err
 	}

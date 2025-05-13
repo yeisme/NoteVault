@@ -16,5 +16,5 @@ type PostgresDriver struct{}
 
 func (d *PostgresDriver) Connect(databaseConfig config.DatabaseConfig) (*gorm.DB, error) {
 	dsn := databaseConfig.DSN
-	return gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	return gorm.Open(postgres.Open(dsn), gormConfig)
 }

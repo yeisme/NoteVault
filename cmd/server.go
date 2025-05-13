@@ -23,7 +23,7 @@ var (
 			logx.Infof("LoadConfig: %s", filePathToLoad)
 
 			// 初始化数据库连接
-			if err := storage.InitStorage(c.Storage); err != nil {
+			if err := storage.InitStorage(c.Storage, c.Log); err != nil {
 				if *dryrun {
 					logx.Errorf("Database connection check failed: %v", err)
 					logx.Info("Running in dry run mode, continuing despite database errors")

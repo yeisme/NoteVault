@@ -28,7 +28,7 @@ build ENV="debug" DRIVERS="mysql": dep-fmt
     @echo "Build complete for drivers: {{DRIVERS}}."
 
 # Alias for building with sqlite3 driver
-b3: dep-fmt
+b3:
     just build debug sqlite3
 
 # Update dependencies and tidy up the package

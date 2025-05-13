@@ -11,10 +11,14 @@ import (
 )
 
 var (
-	db      *gorm.DB
-	dbOnce  sync.Once
-	mu      sync.RWMutex
-	drivers = make(map[string]DBDriver)
+	db         *gorm.DB
+	gormDbOnce sync.Once
+	mu         sync.RWMutex
+	drivers    = make(map[string]DBDriver)
+
+	gormConfig = &gorm.Config{
+		Logger: NewLogxAdapter(),
+	}
 )
 
 // registerDriver 注册数据库驱动
@@ -25,9 +29,9 @@ func registerDriver(name string, driver DBDriver) {
 }
 
 // InitDatabase 初始化数据库连接
-func InitDatabase(dbConfig config.DatabaseConfig) error {
+func InitDatabase(dbConfig config.DatabaseConfig, logConfig logx.LogConf) error {
 	var err error
-	dbOnce.Do(func() {
+	gormDbOnce.Do(func() {
 		logx.Infof("Initializing database connection with driver: %s", dbConfig.Driver)
 
 		mu.RLock()
