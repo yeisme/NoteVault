@@ -18,7 +18,7 @@ var (
 		Short: "Start the server",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// 解析配置文件
-			c, filePathToLoad := etc.LoadConfig(ConfigFile)
+			c, filePathToLoad := etc.LoadConfig(ConfigFilePath)
 
 			logx.Infof("LoadConfig: %s", filePathToLoad)
 
@@ -40,6 +40,8 @@ var (
 
 			server := rest.MustNewServer(c.RestConf)
 			defer server.Stop()
+
+			// 添加全局中间件
 
 			ctx := svc.NewServiceContext(c)
 			handler.RegisterHandlers(server, ctx)

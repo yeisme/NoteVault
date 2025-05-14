@@ -1,0 +1,82 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Generate API Documentation",
+            "type": "shell",
+            "command": "just gen-doc",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Project",
+            "type": "shell",
+            "command": "just build",
+            "args": [
+                "debug",
+                "mysql"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build SQLite3 Driver Version",
+            "type": "shell",
+            "command": "just b3",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Update Dependencies and Format Code",
+            "type": "shell",
+            "command": "just dep-fmt",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Install Development Tools",
+            "type": "shell",
+            "command": "just init",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Generate Golang Code",
+            "type": "shell",
+            "command": "just gen-go",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Hot Reload",
+            "type": "shell",
+            "command": "just hot",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Snapshot Build",
+            "type": "shell",
+            "command": "just snapshot",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Release Project",
+            "type": "shell",
+            "command": "just goreleaser",
+            "args": [
+                "MODE=local"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean Build",
+            "type": "shell",
+            "command": "just clean",
+            "group": "build",
+            "problemMatcher": []
+        }
+    ]
+}

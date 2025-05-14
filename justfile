@@ -1,7 +1,7 @@
 # Default task
 [private]
 default: help
-API_FILE:= "./NoteVault.api"
+API_FILE:= "./notevault.api"
 
 
 # Setting

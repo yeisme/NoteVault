@@ -1,13 +1,13 @@
 syntax = "v1"
 
 info (
-	title:       "NoteVault API"
-	desc:        "NoteVault 文件及元数据管理 API"
+	title:       "notevault API"
+	desc:        "notevault 文件及元数据管理 API"
 	author:      "yeisme"
 	email:       "yefun2004@gmail.com"
 	version:     "v1"
 	host:        "localhost"
-	description: "NoteVault API 文档"
+	description: "notevault API 文档"
 	licenseName: "MIT"
 )
 

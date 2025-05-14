@@ -18,7 +18,7 @@ var (
 			// LoadConfig will search for the config file in the specified path or default paths
 			// and return the configuration struct and the path to the loaded file.
 			// If the config file is not found, it will panic and exit the program.
-			c, filePathToLoad := etc.LoadConfig(ConfigFile)
+			c, filePathToLoad := etc.LoadConfig(ConfigFilePath)
 
 			fmt.Printf("LoadConfig: %s\n", filePathToLoad)
 			if withFormat {
