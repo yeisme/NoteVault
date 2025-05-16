@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/yeisme/notevault/internal/config"
+	"github.com/yeisme/notevault/pkg/storage/repository/model"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/gorm"
 )
@@ -80,4 +81,21 @@ func GetDB() *gorm.DB {
 		return nil
 	}
 	return db
+}
+
+// AutoMigrate 自动迁移数据库
+func AutoMigrate() error {
+	if db == nil {
+		return fmt.Errorf("database connection is not initialized")
+	}
+
+	mu.RLock()
+	defer mu.RUnlock()
+
+	return db.AutoMigrate(
+		&model.File{},
+		&model.FileTag{},
+		&model.FileVersion{},
+		&model.Tag{},
+	)
 }

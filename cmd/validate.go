@@ -11,7 +11,7 @@ import (
 var (
 	withFormat bool
 
-	validateCmd = &cobra.Command{
+	ValidateCmd = &cobra.Command{
 		Use:   "validate",
 		Short: "Search and validate the configuration file, print the loaded file path and content(with -w flag)",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -36,5 +36,5 @@ var (
 )
 
 func init() {
-	validateCmd.Flags().BoolVarP(&withFormat, "with-format", "w", false, "格式化输出")
+	ValidateCmd.Flags().BoolVarP(&withFormat, "with-format", "w", false, "格式化输出")
 }

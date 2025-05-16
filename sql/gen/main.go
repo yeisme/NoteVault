@@ -14,7 +14,7 @@ import (
 var (
 	schema_path          = `../schema/`
 	schema_file_name_set = []string{
-		"file.sql",
+		"001-file.sql",
 	}
 )
 

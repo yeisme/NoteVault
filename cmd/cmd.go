@@ -28,8 +28,8 @@ func Execute(version string, environment string, args ...string) {
 
 	// 添加子命令
 	rootCmd.AddCommand(
-		serverCmd,
-		validateCmd,
+		ServerCmd,
+		ValidateCmd,
 	)
 
 	if err := rootCmd.Execute(); err != nil {

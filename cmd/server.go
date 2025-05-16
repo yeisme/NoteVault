@@ -13,7 +13,7 @@ import (
 var (
 	dryrun *bool
 
-	serverCmd = &cobra.Command{
+	ServerCmd = &cobra.Command{
 		Use:   "server",
 		Short: "Start the server",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -54,5 +54,5 @@ var (
 )
 
 func init() {
-	dryrun = serverCmd.Flags().BoolP("dryrun", "d", false, "dryrun mode, only check config and db connection")
+	dryrun = ServerCmd.Flags().BoolP("dryrun", "d", false, "dryrun mode, only check config and db connection")
 }
