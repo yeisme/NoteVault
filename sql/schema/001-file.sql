@@ -20,14 +20,13 @@ CREATE TABLE IF NOT EXISTS files (
     -- 更新时间(Unix时间戳)
     current_version INT NOT NULL DEFAULT 1,
     -- 当前版本号
-    description TEXT,
-    -- 文件描述
-    -- 索引
-    INDEX idx_files_user_id (user_id),
-    INDEX idx_files_file_type (file_type),
-    INDEX idx_files_created_at (created_at),
-    INDEX idx_files_updated_at (updated_at)
+description TEXT -- 文件描述
 );
+-- PostgreSQL索引 (注意语法区别)
+CREATE INDEX idx_files_user_id ON files(user_id);
+CREATE INDEX idx_files_file_type ON files(file_type);
+CREATE INDEX idx_files_created_at ON files(created_at);
+CREATE INDEX idx_files_updated_at ON files(updated_at);
 -- 文件版本表
 CREATE TABLE IF NOT EXISTS file_versions (
     version_id VARCHAR(36) PRIMARY KEY,
@@ -46,11 +45,12 @@ CREATE TABLE IF NOT EXISTS file_versions (
     -- 版本创建时间(Unix时间戳)
     commit_message TEXT,
     -- 版本提交信息
-    -- 外键和索引
+-- 外键和约束
     CONSTRAINT fk_file_versions_file FOREIGN KEY (file_id) REFERENCES files(file_id) ON DELETE CASCADE,
-    CONSTRAINT uk_file_version UNIQUE (file_id, version_number),
-    INDEX idx_file_versions_file_id (file_id)
+CONSTRAINT uk_file_version UNIQUE (file_id, version_number)
 );
+-- PostgreSQL索引
+CREATE INDEX idx_file_versions_file_id ON file_versions(file_id);
 -- 标签表
 CREATE TABLE IF NOT EXISTS tags (
     tag_id VARCHAR(36) PRIMARY KEY,
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS file_tags (
     CONSTRAINT fk_file_tags_file FOREIGN KEY (file_id) REFERENCES files(file_id) ON DELETE CASCADE,
     CONSTRAINT fk_file_tags_tag FOREIGN KEY (tag_id) REFERENCES tags(tag_id) ON DELETE CASCADE
 );
--- 用户文件统计视图（可选）
+-- 用户文件统计视图
 CREATE VIEW user_file_stats AS
 SELECT user_id,
     COUNT(*) as total_files,

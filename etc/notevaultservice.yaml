@@ -38,5 +38,11 @@ storage:
     MaxLifetime: 3600
 
   # oss 对象存储配置
-
+  oss:
+    # 使用 s3/minio 存储
+    Endpoint: http://localhost:9000
+    AccessKeyID: notevault
+    SecretAccessKey: notevault
+    BucketName: notevault
+    Region: us-east-1
   # cache 缓存配置

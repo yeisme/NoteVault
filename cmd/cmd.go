@@ -8,7 +8,7 @@ import (
 
 var (
 	ConfigFilePath string
-	rootCmd    = &cobra.Command{
+	rootCmd        = &cobra.Command{
 		Use:   "notevault",
 		Short: "notevault cli",
 		Run: func(cmd *cobra.Command, args []string) {

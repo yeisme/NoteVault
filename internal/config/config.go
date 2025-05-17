@@ -13,17 +13,24 @@ type (
 		Storage StorageConfig
 	}
 
-	// StorageConfig 存储配置
 	StorageConfig struct {
 		Database DatabaseConfig
+		Oss      OssConfig
 	}
 
-	// DatabaseConfig 数据库配置
 	DatabaseConfig struct {
-		Driver      string // 数据库驱动类型 mysql/sqlite/postgres
-		DSN         string // 数据库连接字符串
-		MaxOpenConn int    // 最大连接数
-		MaxIdleConn int    // 最大空闲连接数
-		MaxLifetime int    // 连接最大生存时间(秒)
+		Driver      string //Database driver type mysql/sqlite/postgres
+		DSN         string //Database connection string
+		MaxOpenConn int    //Maximum number of connections
+		MaxIdleConn int    //Maximum number of idle connections
+		MaxLifetime int    //Maximum survival time (seconds)
+	}
+
+	OssConfig struct {
+		Endpoint        string
+		AccessKeyID     string
+		SecretAccessKey string
+		BucketName      string
+		Region          string
 	}
 )
