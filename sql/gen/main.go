@@ -41,9 +41,6 @@ func main() {
 	}
 
 	g.UseDB(gormdb)
-	g.ApplyBasic(
-		g.GenerateModel("file"),
-	)
 
 	g.ApplyBasic(
 		g.GenerateAllTable()...,

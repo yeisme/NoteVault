@@ -20,6 +20,9 @@ var (
 			// 解析配置文件
 			c, filePathToLoad := etc.LoadConfig(ConfigFilePath)
 
+			logx.MustSetup(c.Log)
+
+			// 现在可以安全地使用日志系统
 			logx.Infof("LoadConfig: %s", filePathToLoad)
 
 			// 初始化数据库连接

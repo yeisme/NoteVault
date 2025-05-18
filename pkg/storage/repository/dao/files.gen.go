@@ -28,6 +28,17 @@ func newFile(db *gorm.DB, opts ...gen.DOOption) file {
 
 	tableName := _file.fileDo.TableName()
 	_file.ALL = field.NewAsterisk(tableName)
+	_file.FileID = field.NewString(tableName, "file_id")
+	_file.UserID = field.NewString(tableName, "user_id")
+	_file.FileName = field.NewString(tableName, "file_name")
+	_file.FileType = field.NewString(tableName, "file_type")
+	_file.ContentType = field.NewString(tableName, "content_type")
+	_file.Size = field.NewInt64(tableName, "size")
+	_file.Path = field.NewString(tableName, "path")
+	_file.CreatedAt = field.NewInt64(tableName, "created_at")
+	_file.UpdatedAt = field.NewInt64(tableName, "updated_at")
+	_file.CurrentVersion = field.NewInt32(tableName, "current_version")
+	_file.Description = field.NewString(tableName, "description")
 
 	_file.fillFieldMap()
 
@@ -37,7 +48,18 @@ func newFile(db *gorm.DB, opts ...gen.DOOption) file {
 type file struct {
 	fileDo
 
-	ALL field.Asterisk
+	ALL            field.Asterisk
+	FileID         field.String
+	UserID         field.String
+	FileName       field.String
+	FileType       field.String
+	ContentType    field.String
+	Size           field.Int64
+	Path           field.String
+	CreatedAt      field.Int64
+	UpdatedAt      field.Int64
+	CurrentVersion field.Int32
+	Description    field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -54,6 +76,17 @@ func (f file) As(alias string) *file {
 
 func (f *file) updateTableName(table string) *file {
 	f.ALL = field.NewAsterisk(table)
+	f.FileID = field.NewString(table, "file_id")
+	f.UserID = field.NewString(table, "user_id")
+	f.FileName = field.NewString(table, "file_name")
+	f.FileType = field.NewString(table, "file_type")
+	f.ContentType = field.NewString(table, "content_type")
+	f.Size = field.NewInt64(table, "size")
+	f.Path = field.NewString(table, "path")
+	f.CreatedAt = field.NewInt64(table, "created_at")
+	f.UpdatedAt = field.NewInt64(table, "updated_at")
+	f.CurrentVersion = field.NewInt32(table, "current_version")
+	f.Description = field.NewString(table, "description")
 
 	f.fillFieldMap()
 
@@ -70,7 +103,18 @@ func (f *file) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (f *file) fillFieldMap() {
-	f.fieldMap = make(map[string]field.Expr, 0)
+	f.fieldMap = make(map[string]field.Expr, 11)
+	f.fieldMap["file_id"] = f.FileID
+	f.fieldMap["user_id"] = f.UserID
+	f.fieldMap["file_name"] = f.FileName
+	f.fieldMap["file_type"] = f.FileType
+	f.fieldMap["content_type"] = f.ContentType
+	f.fieldMap["size"] = f.Size
+	f.fieldMap["path"] = f.Path
+	f.fieldMap["created_at"] = f.CreatedAt
+	f.fieldMap["updated_at"] = f.UpdatedAt
+	f.fieldMap["current_version"] = f.CurrentVersion
+	f.fieldMap["description"] = f.Description
 }
 
 func (f file) clone(db *gorm.DB) file {

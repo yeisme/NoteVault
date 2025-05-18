@@ -166,7 +166,7 @@ type (
 )
 
 @server (
-	jwt:    Auth // 表示此服务块中的路由需要JWT身份验证
+	// jwt:    Auth // 表示此服务块中的路由需要JWT身份验证
 	group:  file // 将路由分组到 'file' 前缀下
 	prefix: /api/v1/files // 这些API的基础路径
 )
