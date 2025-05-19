@@ -93,6 +93,8 @@ clean:
     rm -rf dist/
     rm -rf tmp/
     go clean -x
+    @echo "Cleaning up logs..."
+    rm -rf logs/*
     @echo "Cleanup complete."
 
 alias b := build

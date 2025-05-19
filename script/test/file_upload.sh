@@ -2,7 +2,7 @@ curl -X POST "http://localhost:8888/api/v1/files/upload" \
     -H "Authorization: Bearer your_token_here" \
     -F "file=@test_file/test.md" \
     -F "fileName=test.md" \
-    -F "fileType=txt" \
+    -F "fileType=text/markdown" \
     -F "description=This is a test file" \
     -F "tags=test,document" \
     -F "commitMessage=Initial upload"

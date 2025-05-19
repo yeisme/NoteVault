@@ -17,7 +17,7 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config: c,
-		DB:     database.GetDB(),
-		OSS:    oss.GetOssClient(),
+		DB:     database.GetDB(), // *gorm.DB
+		OSS:    oss.GetOssClient(), /// *minio.Client
 	}
 }

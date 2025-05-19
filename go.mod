@@ -4,6 +4,7 @@ go 1.24.2
 
 require (
 	github.com/goccy/go-yaml v1.17.1
+	github.com/h2non/filetype v1.1.3
 	github.com/minio/minio-go/v7 v7.0.91
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1

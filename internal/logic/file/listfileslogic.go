@@ -25,7 +25,8 @@ func NewListFilesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListFil
 }
 
 func (l *ListFilesLogic) ListFiles(req *types.ListFilesRequest) (resp *types.ListFilesResponse, err error) {
-	// todo: add your logic here and delete this line
 
-	return
+	resp = &types.ListFilesResponse{}
+
+	return resp, nil
 }

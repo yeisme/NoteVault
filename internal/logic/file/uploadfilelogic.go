@@ -3,14 +3,15 @@ package file
 import (
 	"context"
 	"crypto/sha256"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/h2non/filetype"
 	"github.com/minio/minio-go/v7"
 	"github.com/yeisme/notevault/internal/svc"
 	"github.com/yeisme/notevault/internal/types"
@@ -46,11 +47,12 @@ func (l *UploadFileLogic) UploadFile(req *types.FileUploadRequest) (resp *types.
 	// Get user ID from context
 	userId, ok := l.ctx.Value("userId").(string)
 	if !ok || userId == "" {
-		userId = "test_user" // 临时测试用户ID
-		l.Logger.Info("使用测试用户ID", logx.Field("userId", userId))
+		userId = "notevault"
+		l.Logger.Info("test user notevault", logx.Field("userId", userId))
 	}
 
 	// frontend also check file size, but we need to check it again here
+	// TODO: use multipart instead of FromFile
 	file, fileHeader, err := l.r.FormFile("file")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to retrieve uploaded file: %w", err)
@@ -72,27 +74,89 @@ func (l *UploadFileLogic) UploadFile(req *types.FileUploadRequest) (resp *types.
 
 	// File type processing
 	contentType := fileHeader.Header.Get("Content-Type")
-	fileType := req.FileType
 
-	// Create a temporary buffer to store file for hash calculation
-	// Note: For large files, consider using a more memory-efficient approach
-	fileBytes, err := io.ReadAll(file)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to read file: %w", err)
+	fileType := req.FileType
+	if fileType == "" {
+		fileHeaderBytes := make([]byte, 261)
+		if _, err := file.Read(fileHeaderBytes); err != nil {
+			return nil, fmt.Errorf("Failed to read file header: %w", err)
+		}
+		// 重置文件指针以便后续操作
+		if _, err := file.Seek(0, 0); err != nil {
+			return nil, fmt.Errorf("Failed to reset file pointer: %w", err)
+		}
+		kind, err := filetype.Match(fileHeaderBytes)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to determine file type: %w", err)
+		}
+		if kind == filetype.Unknown {
+			// 如果无法识别文件类型，检查文件扩展名
+			extension := strings.ToLower(filepath.Ext(fileName))
+
+			// 为常见文本文件类型设置正确的 MIME 类型
+			textExtensions := map[string]string{
+				".md":   "text/markdown",
+				".txt":  "text/plain",
+				".csv":  "text/csv",
+				".json": "application/json",
+				".xml":  "application/xml",
+				".html": "text/html",
+				".css":  "text/css",
+				".js":   "application/javascript",
+				".yml":  "application/x-yaml",
+				".yaml": "application/x-yaml",
+				".toml": "application/toml",
+				".ini":  "text/plain",
+				".conf": "text/plain",
+				".log":  "text/plain",
+				".sql":  "application/sql",
+			}
+
+			if mimeType, ok := textExtensions[extension]; ok {
+				fileType = mimeType
+			} else if contentType != "" {
+				fileType = contentType
+			} else {
+				fileType = "application/octet-stream"
+			}
+		} else {
+			fileType = kind.MIME.Value
+		}
 	}
 
-	// Calculate file hash (SHA-256)
-	hasher := sha256.New()
-	hasher.Write(fileBytes)
-	fileHash := hex.EncodeToString(hasher.Sum(nil))
+	// Calculate file hash (sha256) before uploading
+	hash := sha256.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return nil, fmt.Errorf("Failed to calculate file hash: %w", err)
+	}
+	fileID := fmt.Sprintf("%x", hash.Sum(nil))
 
-	// Use file hash as fileID
-	fileID := fileHash
+	// Reset file pointer to beginning for upload
+	if _, err := file.Seek(0, 0); err != nil {
+		return nil, fmt.Errorf("Failed to reset file for upload: %w", err)
+	}
 
-	// Get the timestamp and yearMonth format earlier in the code
+	// Get the timestamp and yearMonth format
 	now := time.Now()
 	yearMonth := now.Format("200601")
 	now_time := now.Unix()
+
+	// Build final storage path with fileID
+	storePath := fmt.Sprintf("%s/%s/%s", userId, yearMonth, fileID)
+
+	// Upload file directly to final location
+	_, err = l.svcCtx.OSS.PutObject(
+		l.ctx,
+		l.svcCtx.Config.Storage.Oss.BucketName,
+		storePath,
+		file,
+		fileHeader.Size,
+		minio.PutObjectOptions{ContentType: contentType},
+	)
+	if err != nil {
+		l.Error("Failed to upload file to OSS", logx.Field("error", err))
+		return nil, fmt.Errorf("Failed to upload file to storage: %w", err)
+	}
 
 	// Initialize the query using gorm gen
 	fileQuery := dao.Use(l.svcCtx.DB)
@@ -100,49 +164,14 @@ func (l *UploadFileLogic) UploadFile(req *types.FileUploadRequest) (resp *types.
 	// Check if file with same hash already exists in database using gorm gen
 	existingFile, err := fileQuery.File.Where(fileQuery.File.FileID.Eq(fileID)).First()
 	if err == nil && existingFile != nil {
-		// File with same hash already exists
+		// File with same hash already exists, clean up the uploaded file
+		l.cleanupFile(storePath)
 		return nil, fmt.Errorf("File with identical content already exists (ID: %s)", fileID)
 	} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		// Database error
 		l.Error("Failed to check for existing file", logx.Field("error", err))
+		l.cleanupFile(storePath)
 		return nil, fmt.Errorf("Failed to check for duplicate file: %w", err)
-	}
-
-	// Build storage path: userId/yearMonth/fileHash
-	storePath := fmt.Sprintf("%s/%s/%s", userId, yearMonth, fileID)
-
-	// Optional: Check if file exists in OSS storage
-	// This is useful if files might be directly uploaded to OSS without database entries
-	_, err = l.svcCtx.OSS.StatObject(
-		l.ctx,
-		l.svcCtx.Config.Storage.Oss.BucketName,
-		storePath,
-		minio.StatObjectOptions{},
-	)
-	if err == nil {
-		// File already exists in OSS
-		return nil, fmt.Errorf("File with identical content already exists in storage")
-	} else if !isMinioErrorNotFound(err) {
-		// Error other than "not found"
-		l.Error("Failed to check OSS for existing file", logx.Field("error", err))
-		return nil, fmt.Errorf("Failed to check storage for duplicate file: %w", err)
-	}
-
-	// Reset file reader for upload
-	fileReader := io.NopCloser(strings.NewReader(string(fileBytes)))
-
-	// Upload file to OSS
-	_, err = l.svcCtx.OSS.PutObject(
-		l.ctx,
-		l.svcCtx.Config.Storage.Oss.BucketName,
-		storePath,
-		fileReader,
-		fileHeader.Size,
-		minio.PutObjectOptions{ContentType: contentType},
-	)
-	if err != nil {
-		l.Error("Failed to upload file to OSS", logx.Field("error", err))
-		return nil, fmt.Errorf("Failed to upload file to storage: %w", err)
 	}
 
 	// Process file tags, splitting by comma
@@ -211,6 +240,7 @@ func (l *UploadFileLogic) UploadFile(req *types.FileUploadRequest) (resp *types.
 	}
 
 	if err := fileQuery.FileVersion.Create(&fileVersion); err != nil {
+		// 数据库可能已经存在相同文件
 		l.Error("Failed to save file version", logx.Field("error", err))
 		// 如果版本保存失败，尝试删除之前创建的文件记录
 		_, deleteErr := fileQuery.File.Where(fileQuery.File.FileID.Eq(fileID)).Delete(&fileModel)
@@ -300,10 +330,4 @@ func (l *UploadFileLogic) cleanupFile(path string) {
 	if err != nil {
 		l.Error("Failed to clean up OSS file", logx.Field("path", path), logx.Field("error", err))
 	}
-}
-
-// Helper function to check if the error is a "not found" error from Minio
-func isMinioErrorNotFound(err error) bool {
-	errResp, ok := err.(minio.ErrorResponse)
-	return ok && (errResp.Code == "NoSuchKey" || errResp.Code == "NotFound")
 }
