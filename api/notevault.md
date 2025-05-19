@@ -13,18 +13,18 @@
 
 ```golang
 type ListFilesRequest struct {
-	UserID string `form:"userId,omitempty"` // 按用户ID筛选（管理员可能会使用）
-	FileName string `form:"fileName,omitempty"` // 按文件名模糊匹配
-	FileType string `form:"fileType,omitempty"` // 文件类型精确匹配
-	Tag string `form:"tag,omitempty"` // 按单个标签精确匹配 (未来可支持多标签)
-	CreatedAtStart int64 `form:"createdAtStart,omitempty"` // 创建时间范围开始 (Unix timestamp)
-	CreatedAtEnd int64 `form:"createdAtEnd,omitempty"` // 创建时间范围结束 (Unix timestamp)
-	UpdatedAtStart int64 `form:"updatedAtStart,omitempty"` // 更新时间范围开始 (Unix timestamp)
-	UpdatedAtEnd int64 `form:"updatedAtEnd,omitempty"` // 更新时间范围结束 (Unix timestamp)
+	UserID string `form:"userId,optional"` // 按用户ID筛选（管理员可能会使用）
+	FileName string `form:"fileName,optional"` // 按文件名模糊匹配
+	FileType string `form:"fileType,optional"` // 文件类型精确匹配
+	Tag string `form:"tag,optional"` // 按单个标签精确匹配 (未来可支持多标签)
+	CreatedAtStart int64 `form:"createdAtStart,optional"` // 创建时间范围开始 (Unix timestamp)
+	CreatedAtEnd int64 `form:"createdAtEnd,optional"` // 创建时间范围结束 (Unix timestamp)
+	UpdatedAtStart int64 `form:"updatedAtStart,optional"` // 更新时间范围开始 (Unix timestamp)
+	UpdatedAtEnd int64 `form:"updatedAtEnd,optional"` // 更新时间范围结束 (Unix timestamp)
 	Page int `form:"page,default=1"` // 页码
 	PageSize int `form:"pageSize,default=10"` // 每页大小
-	SortBy string `form:"sortBy,omitempty,options=name|date|size|type"` // 排序字段: name, date (updatedAt), size, type
-	Order string `form:"order,omitempty,options=asc|desc"` // 排序顺序
+	SortBy string `form:"sortBy,optional,options=name|date|size|type"` // 排序字段: name, date (updatedAt), size, type
+	Order string `form:"order,optional,options=asc|desc"` // 排序顺序
 }
 ```
 
@@ -135,7 +135,7 @@ type FileVersionDiffResponse struct {
 	BaseVersion int `json:"baseVersion"`
 	TargetVersion int `json:"targetVersion"`
 	DiffContent string `json:"diffContent"` // 差异内容 (例如 unified diff 格式)
-	Message string `json:"message,omitempty"`
+	Message string `json:"message,optional"`
 }
 ```
 
@@ -156,7 +156,7 @@ type FileVersionDiffResponse struct {
 type RevertFileVersionRequest struct {
 	FileID string `path:"fileId"`
 	Version int `json:"version"` // 要恢复到的版本号
-	CommitMessage string `json:"commitMessage,omitempty"` // 恢复操作的提交信息
+	CommitMessage string `json:"commitMessage,optional"` // 恢复操作的提交信息
 }
 ```
 
@@ -182,8 +182,8 @@ type FileMetadata struct {
 	CreatedAt int64 `json:"createdAt"` // 创建时间（Unix时间戳）
 	UpdatedAt int64 `json:"updatedAt"` // 更新时间（Unix时间戳）
 	Version int `json:"version"` // 文件当前版本号
-	Tags []string `json:"tags,omitempty"` // 标签
-	Description string `json:"description,omitempty"` // 描述
+	Tags []string `json:"tags,optional"` // 标签
+	Description string `json:"description,optional"` // 描述
 }
 ```
 
@@ -235,7 +235,7 @@ type BatchDeleteFilesResponse struct {
 ```golang
 type FileDownloadRequest struct {
 	FileID string `path:"fileId"`
-	VersionID *int `form:"versionId,omitempty"` // 可选，指定下载特定版本的文件
+	VersionID *int `form:"versionId,optional"` // 可选，指定下载特定版本的文件
 }
 ```
 
@@ -259,7 +259,7 @@ type FileDownloadRequest struct {
 ```golang
 type GetFileMetadataRequest struct {
 	FileID string `path:"fileId"`
-	VersionID *int `form:"versionId,omitempty"` // 可选，获取特定版本文件的元数据
+	VersionID *int `form:"versionId,optional"` // 可选，获取特定版本文件的元数据
 }
 ```
 
@@ -284,8 +284,8 @@ type FileMetadata struct {
 	CreatedAt int64 `json:"createdAt"` // 创建时间（Unix时间戳）
 	UpdatedAt int64 `json:"updatedAt"` // 更新时间（Unix时间戳）
 	Version int `json:"version"` // 文件当前版本号
-	Tags []string `json:"tags,omitempty"` // 标签
-	Description string `json:"description,omitempty"` // 描述
+	Tags []string `json:"tags,optional"` // 标签
+	Description string `json:"description,optional"` // 描述
 }
 ```
 
@@ -305,10 +305,10 @@ type FileMetadata struct {
 ```golang
 type UpdateFileMetadataRequest struct {
 	FileID string `path:"fileId"`
-	FileName string `json:"fileName,omitempty"`
-	Description string `json:"description,omitempty"`
-	Tags []string `json:"tags,omitempty"`
-	CommitMessage string `json:"commitMessage,omitempty"` // 版本提交信息
+	FileName string `json:"fileName,optional"`
+	Description string `json:"description,optional"`
+	Tags []string `json:"tags,optional"`
+	CommitMessage string `json:"commitMessage,optional"` // 版本提交信息
 }
 ```
 
@@ -334,8 +334,8 @@ type FileMetadata struct {
 	CreatedAt int64 `json:"createdAt"` // 创建时间（Unix时间戳）
 	UpdatedAt int64 `json:"updatedAt"` // 更新时间（Unix时间戳）
 	Version int `json:"version"` // 文件当前版本号
-	Tags []string `json:"tags,omitempty"` // 标签
-	Description string `json:"description,omitempty"` // 描述
+	Tags []string `json:"tags,optional"` // 标签
+	Description string `json:"description,optional"` // 描述
 }
 ```
 
@@ -354,11 +354,11 @@ type FileMetadata struct {
 
 ```golang
 type FileUploadRequest struct {
-	FileName string `form:"fileName,omitempty"` // 可选：如果未提供，则使用上传文件的名称
-	FileType string `form:"fileType,omitempty"` // 可选：可以推断或指定
-	Description string `form:"description,omitempty"` // 描述
-	Tags string `form:"tags,omitempty"` // 逗号分隔的标签
-	CommitMessage string `form:"commitMessage,omitempty"` // 版本提交信息
+	FileName string `form:"fileName,optional"` // 可选：如果未提供，则使用上传文件的名称
+	FileType string `form:"fileType,optional"` // 可选：可以推断或指定
+	Description string `form:"description,optional"` // 描述
+	Tags string `form:"tags,optional"` // 逗号分隔的标签
+	CommitMessage string `form:"commitMessage,optional"` // 版本提交信息
 }
 ```
 

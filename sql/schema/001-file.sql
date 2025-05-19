@@ -29,7 +29,7 @@ CREATE INDEX idx_files_created_at ON files(created_at);
 CREATE INDEX idx_files_updated_at ON files(updated_at);
 -- 文件版本表
 CREATE TABLE IF NOT EXISTS file_versions (
-    version_id VARCHAR(64) PRIMARY KEY,
+    version_id VARCHAR(128) PRIMARY KEY,
     -- 版本唯一ID
     file_id VARCHAR(64) NOT NULL,
     -- 关联的文件ID

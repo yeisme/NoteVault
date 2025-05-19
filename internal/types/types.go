@@ -8,29 +8,29 @@ type Auth struct {
 }
 
 type FileMetadata struct {
-	FileID      string   `json:"fileId"`                // 文件唯一ID
-	UserID      string   `json:"userId"`                // 文件所属用户ID
-	FileName    string   `json:"fileName"`              // 文件名
-	FileType    string   `json:"fileType"`              // 文件类型，例如："document", "image", "video", "text"
-	ContentType string   `json:"contentType"`           // MIME类型，例如："application/pdf", "image/jpeg", "text/plain"
-	Size        int64    `json:"size"`                  // 文件大小（字节）
-	Path        string   `json:"path"`                  // 存储路径或键
-	CreatedAt   int64    `json:"createdAt"`             // 创建时间（Unix时间戳）
-	UpdatedAt   int64    `json:"updatedAt"`             // 更新时间（Unix时间戳）
-	Version     int      `json:"version"`               // 文件当前版本号
-	Tags        []string `json:"tags,omitempty"`        // 标签
-	Description string   `json:"description,omitempty"` // 描述
+	FileID      string   `json:"fileId"`               // 文件唯一ID
+	UserID      string   `json:"userId"`               // 文件所属用户ID
+	FileName    string   `json:"fileName"`             // 文件名
+	FileType    string   `json:"fileType"`             // 文件类型，例如："document", "image", "video", "text"
+	ContentType string   `json:"contentType"`          // MIME类型，例如："application/pdf", "image/jpeg", "text/plain"
+	Size        int64    `json:"size"`                 // 文件大小（字节）
+	Path        string   `json:"path"`                 // 存储路径或键
+	CreatedAt   int64    `json:"createdAt"`            // 创建时间（Unix时间戳）
+	UpdatedAt   int64    `json:"updatedAt"`            // 更新时间（Unix时间戳）
+	Version     int      `json:"version"`              // 文件当前版本号
+	Tags        []string `json:"tags,optional"`        // 标签
+	Description string   `json:"description,optional"` // 描述
 }
 
 type FilePreviewRequest struct {
 	FileID    string `path:"fileId"`
-	VersionID *int   `form:"versionId,omitempty"` // 可选，指定预览特定版本的文件
+	VersionID *int   `form:"versionId,optional"` // 可选，指定预览特定版本的文件
 }
 
 type FileVersionInfo struct {
-	Version       int    `json:"version"`                 // 版本号
-	Size          int64  `json:"size"`                    // 文件大小
-	CreatedAt     int64  `json:"createdAt"`               // 版本创建时间
-	ContentType   string `json:"contentType"`             // 该版本的文件MIME类型
-	CommitMessage string `json:"commitMessage,omitempty"` // 此版本的提交信息
+	Version       int    `json:"version"`                // 版本号
+	Size          int64  `json:"size"`                   // 文件大小
+	CreatedAt     int64  `json:"createdAt"`              // 版本创建时间
+	ContentType   string `json:"contentType"`            // 该版本的文件MIME类型
+	CommitMessage string `json:"commitMessage,optional"` // 此版本的提交信息
 }

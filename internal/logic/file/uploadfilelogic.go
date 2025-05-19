@@ -159,10 +159,10 @@ func (l *UploadFileLogic) UploadFile(req *types.FileUploadRequest) (resp *types.
 	}
 
 	// Initialize the query using gorm gen
-	fileQuery := dao.Use(l.svcCtx.DB)
+	query := dao.Use(l.svcCtx.DB)
 
 	// Check if file with same hash already exists in database using gorm gen
-	existingFile, err := fileQuery.File.Where(fileQuery.File.FileID.Eq(fileID)).First()
+	existingFile, err := query.File.Where(query.File.FileID.Eq(fileID)).First()
 	if err == nil && existingFile != nil {
 		// File with same hash already exists, clean up the uploaded file
 		l.cleanupFile(storePath)
@@ -221,9 +221,9 @@ func (l *UploadFileLogic) UploadFile(req *types.FileUploadRequest) (resp *types.
 
 	// Save file_version to database
 	fileVersion := model.FileVersion{
-		VersionID:     fmt.Sprintf("%d", fileModel.CurrentVersion),
+		VersionID:     fmt.Sprintf("%s_%d", fileID, fileModel.CurrentVersion),
 		FileID:        fileID,
-		VersionNumber: 1,
+		VersionNumber: fileModel.CurrentVersion,
 		Size:          fileHeader.Size,
 		Path:          storePath,
 		ContentType:   contentType,
@@ -232,18 +232,18 @@ func (l *UploadFileLogic) UploadFile(req *types.FileUploadRequest) (resp *types.
 	}
 
 	// Use gorm gen to create the file
-	if err := fileQuery.File.Create(&fileModel); err != nil {
+	if err := query.File.Create(&fileModel); err != nil {
 		l.Error("Failed to save file metadata", logx.Field("error", err))
 		// File uploaded but metadata save failed, should delete file from OSS
 		l.cleanupFile(storePath)
 		return nil, fmt.Errorf("Failed to save file information: %w", err)
 	}
 
-	if err := fileQuery.FileVersion.Create(&fileVersion); err != nil {
+	if err := query.FileVersion.Create(&fileVersion); err != nil {
 		// 数据库可能已经存在相同文件
 		l.Error("Failed to save file version", logx.Field("error", err))
 		// 如果版本保存失败，尝试删除之前创建的文件记录
-		_, deleteErr := fileQuery.File.Where(fileQuery.File.FileID.Eq(fileID)).Delete(&fileModel)
+		_, deleteErr := query.File.Where(query.File.FileID.Eq(fileID)).Delete(&fileModel)
 		if deleteErr != nil {
 			l.Error("Failed to clean up file record after version creation failed",
 				logx.Field("fileID", fileID), logx.Field("error", deleteErr))

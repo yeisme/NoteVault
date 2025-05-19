@@ -38,56 +38,56 @@
             "description": "按用户ID筛选（管理员可能会使用）",
             "name": "userId",
             "in": "query",
-            "required": true
+            "allowEmptyValue": true
           },
           {
             "type": "string",
             "description": "按文件名模糊匹配",
             "name": "fileName",
             "in": "query",
-            "required": true
+            "allowEmptyValue": true
           },
           {
             "type": "string",
             "description": "文件类型精确匹配",
             "name": "fileType",
             "in": "query",
-            "required": true
+            "allowEmptyValue": true
           },
           {
             "type": "string",
             "description": "按单个标签精确匹配 (未来可支持多标签)",
             "name": "tag",
             "in": "query",
-            "required": true
+            "allowEmptyValue": true
           },
           {
             "type": "integer",
             "description": "创建时间范围开始 (Unix timestamp)",
             "name": "createdAtStart",
             "in": "query",
-            "required": true
+            "allowEmptyValue": true
           },
           {
             "type": "integer",
             "description": "创建时间范围结束 (Unix timestamp)",
             "name": "createdAtEnd",
             "in": "query",
-            "required": true
+            "allowEmptyValue": true
           },
           {
             "type": "integer",
             "description": "更新时间范围开始 (Unix timestamp)",
             "name": "updatedAtStart",
             "in": "query",
-            "required": true
+            "allowEmptyValue": true
           },
           {
             "type": "integer",
             "description": "更新时间范围结束 (Unix timestamp)",
             "name": "updatedAtEnd",
             "in": "query",
-            "required": true
+            "allowEmptyValue": true
           },
           {
             "type": "integer",
@@ -118,7 +118,7 @@
             "description": "排序字段: name, date (updatedAt), size, type",
             "name": "sortBy",
             "in": "query",
-            "required": true
+            "allowEmptyValue": true
           },
           {
             "enum": [
@@ -129,7 +129,7 @@
             "description": "排序顺序",
             "name": "order",
             "in": "query",
-            "required": true
+            "allowEmptyValue": true
           }
         ],
         "responses": {
@@ -152,9 +152,7 @@
                       "path",
                       "createdAt",
                       "updatedAt",
-                      "version",
-                      "tags",
-                      "description"
+                      "version"
                     ],
                     "properties": {
                       "contentType": {
@@ -315,7 +313,7 @@
             "description": "可选，指定下载特定版本的文件",
             "name": "versionId",
             "in": "query",
-            "required": true
+            "allowEmptyValue": true
           }
         ],
         "responses": {
@@ -350,7 +348,7 @@
             "description": "可选，获取特定版本文件的元数据",
             "name": "versionId",
             "in": "query",
-            "required": true
+            "allowEmptyValue": true
           }
         ],
         "responses": {
@@ -371,9 +369,7 @@
                     "path",
                     "createdAt",
                     "updatedAt",
-                    "version",
-                    "tags",
-                    "description"
+                    "version"
                   ],
                   "properties": {
                     "contentType": {
@@ -461,12 +457,6 @@
             "required": true,
             "schema": {
               "type": "object",
-              "required": [
-                "fileName",
-                "description",
-                "tags",
-                "commitMessage"
-              ],
               "properties": {
                 "commitMessage": {
                   "description": "版本提交信息",
@@ -510,9 +500,7 @@
                     "path",
                     "createdAt",
                     "updatedAt",
-                    "version",
-                    "tags",
-                    "description"
+                    "version"
                   ],
                   "properties": {
                     "contentType": {
@@ -595,35 +583,35 @@
             "description": "可选：如果未提供，则使用上传文件的名称",
             "name": "fileName",
             "in": "formData",
-            "required": true
+            "allowEmptyValue": true
           },
           {
             "type": "string",
             "description": "可选：可以推断或指定",
             "name": "fileType",
             "in": "formData",
-            "required": true
+            "allowEmptyValue": true
           },
           {
             "type": "string",
             "description": "描述",
             "name": "description",
             "in": "formData",
-            "required": true
+            "allowEmptyValue": true
           },
           {
             "type": "string",
             "description": "逗号分隔的标签",
             "name": "tags",
             "in": "formData",
-            "required": true
+            "allowEmptyValue": true
           },
           {
             "type": "string",
             "description": "版本提交信息",
             "name": "commitMessage",
             "in": "formData",
-            "required": true
+            "allowEmptyValue": true
           }
         ],
         "responses": {
@@ -732,8 +720,7 @@
                       "version",
                       "size",
                       "createdAt",
-                      "contentType",
-                      "commitMessage"
+                      "contentType"
                     ],
                     "properties": {
                       "commitMessage": {
@@ -856,8 +843,7 @@
             "schema": {
               "type": "object",
               "required": [
-                "version",
-                "commitMessage"
+                "version"
               ],
               "properties": {
                 "commitMessage": {
@@ -894,9 +880,7 @@
                     "path",
                     "createdAt",
                     "updatedAt",
-                    "version",
-                    "tags",
-                    "description"
+                    "version"
                   ],
                   "properties": {
                     "contentType": {
@@ -959,7 +943,7 @@
       }
     }
   },
-  "x-date": "2025-05-14 19:39:51",
+  "x-date": "2025-05-19 16:02:45",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",
