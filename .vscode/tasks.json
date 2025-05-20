@@ -77,6 +77,13 @@
             "command": "just clean",
             "group": "build",
             "problemMatcher": []
+        },
+        {
+            "label": "Validate Config",
+            "type": "shell",
+            "command": "just validate",
+            "group": "build",
+            "problemMatcher": []
         }
     ]
 }

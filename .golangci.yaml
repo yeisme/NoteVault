@@ -1,0 +1,7 @@
+version: "2"
+linters:
+  default: all
+  settings:
+    staticcheck:
+      checks:
+        - -SA5008

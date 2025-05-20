@@ -97,6 +97,12 @@ clean:
     rm -rf logs/*
     @echo "Cleanup complete."
 
+# Validate configuration files
+validate:
+    @echo "Validating configuration files..."
+    go run . validate
+    @echo "Configuration validation complete."
+
 alias b := build
 alias df := dep-fmt
 alias g := gen-go
@@ -106,3 +112,4 @@ alias r := goreleaser
 alias c := clean
 alias i := init
 alias h := hot
+alias v := validate

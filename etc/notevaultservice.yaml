@@ -20,7 +20,7 @@ Auth:
   AccessExpire: 7200
 
 # 存储相关配置
-storage:
+Storage:
   # 数据库配置
   Database:
     # 数据库驱动类型: mysql/sqlite/postgres
@@ -38,7 +38,7 @@ storage:
     MaxLifetime: 3600
 
   # oss 对象存储配置
-  oss:
+  OSS:
     # 使用 s3/minio 存储
     Endpoint: http://localhost:9000
     AccessKeyID: notevault
@@ -46,3 +46,29 @@ storage:
     BucketName: notevault
     Region: us-east-1
   # cache 缓存配置
+
+# 消息队列配置
+MQ:
+  Type: nats
+  NATS:
+    URL: nats://localhost:4222 # NATS服务器地址
+    QueueGroup: notevault # 队列组名称，用于负载均衡
+    ConnectTimeout: 10 # 连接超时时间(秒)
+    MaxReconnects: 60 # 最大重连次数
+    ReconnectWait: 2 # 重连等待时间(秒)
+    Servers: # 备用服务器列表
+      # - nats://nats-1:4222
+    # 认证配置
+    UseUserCredentials: true # 使用用户名密码认证
+    User: notevault_user # 用户名
+    Password: secret_password # 密码
+    # UseToken: false           # 使用Token认证
+    # Token: your_token_here    # 认证Token
+    # UseCredentials: false     # 使用凭证文件认证
+    # CredentialsFile: /path/to/creds.jwt
+
+    # TLS配置
+    EnableTLS: false
+    # TLSCert: /path/to/cert.pem
+    # TLSKey: /path/to/key.pem
+    # TLSCaCert: /path/to/ca.pem
