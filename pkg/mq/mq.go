@@ -17,8 +17,17 @@ func InitMQ(mqConfig config.MQConfig) error {
 	switch mqConfig.Type {
 	case "nats":
 		initNats(mqConfig.NATS)
+		logx.Infof("NATS messaging system configuration applied")
+	case "kafka":
+		logx.Slow("Kafka messaging system support is planned but not yet implemented")
+		//TODO: initKafka(mqConfig.Kafka) // 未来实现
+	case "rabbitmq":
+		logx.Slow("RabbitMQ messaging system support is planned but not yet implemented")
+		//TODO: initRabbitMQ(mqConfig.RabbitMQ) // 未来实现
+	case "":
+		logx.Info("No message queue type specified, skipping MQ initialization")
 	default:
-		logx.Slow("No message queue specified or unsupported type, continuing without MQ")
+		logx.Slowf("Unsupported message queue type: %s, continuing without MQ", mqConfig.Type)
 	}
 
 	return nil

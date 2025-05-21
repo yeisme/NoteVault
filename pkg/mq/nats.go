@@ -12,58 +12,28 @@ import (
 
 var (
 	natsConn *nats.Conn
+	jsCtx    nats.JetStreamContext
 )
 
-// Default NATS configuration values
-const (
-	DefaultNATSURL           = "nats://localhost:4222"
-	DefaultConnectTimeout    = 10 // seconds
-	DefaultMaxReconnects     = 60
-	DefaultReconnectWait     = 2 // seconds
-	DefaultQueueGroup        = "notevault"
-	DefaultClientName        = "NotevaultService"
-)
+func GetNATSConn() (*nats.Conn, error) {
+	if natsConn == nil {
+		return nil, fmt.Errorf("NATS client was configured but not properly initialized")
+	}
+	return natsConn, nil
+}
+
+// DefaultClientName is the default client name for NATS connections
+const DefaultClientName = "NotevaultService"
 
 func initNats(natsConfig config.NATSConfig) {
 	logx.Infof("Initializing NATS with URL: %s", natsConfig.URL)
 
-	// Use default values if not provided
-	url := natsConfig.URL
-	if url == "" {
-		url = DefaultNATSURL
-		logx.Infof("Using default NATS URL: %s", url)
-	}
-
-	connectTimeout := natsConfig.ConnectTimeout
-	if connectTimeout <= 0 {
-		connectTimeout = DefaultConnectTimeout
-		logx.Infof("Using default connect timeout: %d seconds", connectTimeout)
-	}
-
-	maxReconnects := natsConfig.MaxReconnects
-	if maxReconnects <= 0 {
-		maxReconnects = DefaultMaxReconnects
-		logx.Infof("Using default max reconnects: %d", maxReconnects)
-	}
-
-	reconnectWait := natsConfig.ReconnectWait
-	if reconnectWait <= 0 {
-		reconnectWait = DefaultReconnectWait
-		logx.Infof("Using default reconnect wait: %d seconds", reconnectWait)
-	}
-
-	queueGroup := natsConfig.QueueGroup
-	if queueGroup == "" {
-		queueGroup = DefaultQueueGroup
-		logx.Infof("Using default queue group: %s", queueGroup)
-	}
-
 	// Set connection options
 	opts := []nats.Option{
 		nats.Name(DefaultClientName), // Client name
-		nats.ReconnectWait(time.Duration(reconnectWait) * time.Second),
-		nats.MaxReconnects(maxReconnects),
-		nats.Timeout(time.Duration(connectTimeout) * time.Second),
+		nats.ReconnectWait(time.Duration(natsConfig.ReconnectWait) * time.Second),
+		nats.MaxReconnects(natsConfig.MaxReconnects),
+		nats.Timeout(time.Duration(natsConfig.ConnectTimeout) * time.Second),
 		nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
 			logx.Errorf("NATS connection disconnected: %v", err)
 		}),
@@ -120,7 +90,7 @@ func initNats(natsConfig config.NATSConfig) {
 		serverURL = strings.Join(natsConfig.Servers, ",")
 		logx.Infof("Using multiple NATS servers: %s", serverURL)
 	} else {
-		serverURL = url
+		serverURL = natsConfig.URL
 	}
 
 	// Connect to NATS server
@@ -132,13 +102,35 @@ func initNats(natsConfig config.NATSConfig) {
 		return
 	}
 
-	logx.Infof("Successfully connected to NATS server: %s", natsConn.ConnectedUrl())
+	// Initialize JetStream if enabled
+	if natsConfig.EnableJetStream && natsConn != nil {
+		logx.Info("Initializing JetStream")
+
+		jsOpts := []nats.JSOpt{}
+
+		if natsConfig.JetStreamDomain != "" {
+			jsOpts = append(jsOpts, nats.Domain(natsConfig.JetStreamDomain))
+			logx.Infof("Using JetStream domain: %s", natsConfig.JetStreamDomain)
+		}
+
+		if natsConfig.JetStreamPrefix != "" {
+			jsOpts = append(jsOpts, nats.APIPrefix(natsConfig.JetStreamPrefix))
+			logx.Infof("Using JetStream API prefix: %s", natsConfig.JetStreamPrefix)
+		}
+
+		// 修改: 存储JetStreamContext对象
+		jsCtx, err = natsConn.JetStream(jsOpts...)
+		if err != nil {
+			logx.Errorf("Failed to initialize JetStream: %v", err)
+		} else {
+			logx.Info("JetStream initialized successfully")
+		}
+	}
 }
 
-// GetNATSConn returns the NATS connection for direct use
-func GetNATSConn() (*nats.Conn, error) {
-	if natsConn == nil {
-		return nil, fmt.Errorf("NATS connection not initialized")
+func GetJetStreamContext() (nats.JetStreamContext, error) {
+	if jsCtx == nil {
+		return nil, fmt.Errorf("JetStream not initialized or not enabled in configuration")
 	}
-	return natsConn, nil
+	return jsCtx, nil
 }

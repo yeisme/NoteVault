@@ -36,29 +36,36 @@ type (
 	}
 
 	MQConfig struct {
-		Type string
-		NATS NATSConfig
+		Type string     `json:",default=nats"` // Message queue type: nats, kafka, rabbitmq
+		NATS NATSConfig `json:",optional"`     // NATS configuration
 	}
 
 	NATSConfig struct {
-		URL                string   // NATS服务器URL，例如: nats://localhost:4222
-		Cluster            *string  `json:"cluster,optional"`
-		ClientID           string   // 客户端ID，可选
-		QueueGroup         string   // 队列组名称，用于负载均衡
-		ConnectTimeout     int      // 连接超时时间(秒)
-		MaxReconnects      int      // 最大重连次数
-		ReconnectWait      int      // 重连等待时间(秒)
-		Servers            []string // 备用服务器列表
-		UseCredentials     bool     // 是否使用凭证文件认证
-		CredentialsFile    string   // 凭证文件路径
-		UseToken           bool     // 是否使用Token认证
-		Token              string   // 认证Token
-		UseUserCredentials bool     // 是否使用用户名密码认证
-		User               string   // 用户名
-		Password           string   // 密码
-		EnableTLS          bool     // 启用TLS
-		TLSCert            string   // TLS证书路径
-		TLSKey             string   // TLS密钥路径
-		TLSCaCert          string   // TLS CA证书路径
+		URL            string   `json:",default=nats://localhost:4222"` // NATS server URL
+		ClientID       string   `json:",optional"`                      // Client ID for connection identification
+		QueueGroup     string   `json:",default=notevault"`             // Queue group name for load balancing
+		ConnectTimeout int      `json:",default=10"`                    // Connection timeout (seconds)
+		MaxReconnects  int      `json:",default=60"`                    // Maximum reconnection attempts
+		ReconnectWait  int      `json:",default=2"`                     // Reconnection wait time (seconds)
+		Servers        []string `json:",optional"`                      // Backup server list
+
+		UseCredentials  bool   `json:",optional"` // Whether to use credentials file authentication
+		CredentialsFile string `json:",optional"` // Credentials file path
+
+		UseToken bool   `json:",optional"` // Whether to use token authentication
+		Token    string `json:",optional"` // Authentication token
+
+		UseUserCredentials bool   `json:",optional"` // Whether to use username and password authentication
+		User               string `json:",optional"` // Username
+		Password           string `json:",optional"` // Password
+
+		EnableTLS bool   `json:",optional"` // Enable TLS
+		TLSCert   string `json:",optional"` // TLS certificate path
+		TLSKey    string `json:",optional"` // TLS key path
+		TLSCaCert string `json:",optional"` // TLS CA certificate path
+		// JetStream support
+		EnableJetStream  bool   `json:",optional"`                    // Whether to enable JetStream
+		JetStreamDomain  string `json:",optional"`                    // JetStream domain
+		JetStreamPrefix  string `json:",optional,default=NOTEVAULT_"` // JetStream prefix
 	}
 )
