@@ -6,6 +6,7 @@ require (
 	github.com/goccy/go-yaml v1.17.1
 	github.com/h2non/filetype v1.1.3
 	github.com/minio/minio-go/v7 v7.0.91
+	github.com/nats-io/nats.go v1.42.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
 	github.com/zeromicro/go-zero v1.8.3
@@ -51,6 +52,8 @@ require (
 	github.com/minio/crc64nvme v1.0.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/nats-io/nkeys v0.4.11 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/openzipkin/zipkin-go v0.4.3 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/pingcap/errors v0.11.5-0.20210425183316-da1aaba5fb63 // indirect

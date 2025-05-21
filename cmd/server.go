@@ -5,6 +5,7 @@ import (
 	"github.com/yeisme/notevault/etc"
 	"github.com/yeisme/notevault/internal/handler"
 	"github.com/yeisme/notevault/internal/svc"
+	"github.com/yeisme/notevault/pkg/mq"
 	"github.com/yeisme/notevault/pkg/storage"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/rest"
@@ -30,6 +31,14 @@ var (
 				if *dryrun {
 					logx.Errorf("Database connection check failed: %v", err)
 					logx.Info("Running in dry run mode, continuing despite database errors")
+				} else {
+					return err
+				}
+			}
+			if err := mq.InitMQ(c.MQ); err != nil {
+				if *dryrun {
+					logx.Errorf("MQ connection check failed: %v", err)
+					logx.Info("Running in dry run mode, continuing despite MQ errors")
 				} else {
 					return err
 				}
