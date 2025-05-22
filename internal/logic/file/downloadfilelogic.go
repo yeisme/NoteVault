@@ -58,14 +58,14 @@ func (l *DownloadFileLogic) DownloadFile(req *types.FileDownloadRequest) error {
 	var filePath string
 	var contentType string
 
-	if req.VersionID != nil {
+	if req.VersionNumber != nil {
 		// 获取特定版本的文件
-		versionID := fmt.Sprintf("%s_%d", req.FileID, *req.VersionID)
+		versionID := fmt.Sprintf("%s_%d", req.FileID, *req.VersionNumber)
 		fileVersion, err := query.FileVersion.Where(query.FileVersion.VersionID.Eq(versionID)).First()
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				httpx.Error(l.w, fmt.Errorf("file version not found: %s, version: %d", req.FileID, *req.VersionID))
-				return fmt.Errorf("file version not found: %s, version: %d", req.FileID, *req.VersionID)
+				httpx.Error(l.w, fmt.Errorf("file version not found: %s, version: %d", req.FileID, *req.VersionNumber))
+				return fmt.Errorf("file version not found: %s, version: %d", req.FileID, *req.VersionNumber)
 			}
 			httpx.Error(l.w, fmt.Errorf("failed to query file version: %w", err))
 			return fmt.Errorf("failed to query file version: %w", err)

@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # Download a file from the server
 
-# 设置显示错误信息
+# Set to display error messages
 set -e
 
-# 获取测试文件ID
+# Get test file ID
 TEST_FILE_1=$(curl -s "http://localhost:8888/api/v1/files/?tags=test&sortBy=name&order=asc" | jq -r .files[0].fileId)
 echo "Testing with file ID: ${TEST_FILE_1}"
 
-# 创建临时文件来存储错误信息
+# Create a temporary file to store error messages
 ERROR_FILE=$(mktemp)
 
-# 下载最新版本的文件
+# Download the latest version of the file
 echo "Downloading latest version..."
 curl -X GET "http://localhost:8888/api/v1/files/download/${TEST_FILE_1}" \
     -H "Authorization: Bearer your_token_here" \
@@ -21,7 +21,7 @@ curl -X GET "http://localhost:8888/api/v1/files/download/${TEST_FILE_1}" \
     cat "${ERROR_FILE}"
 }
 
-# 下载指定版本的文件
+# Download a specific version of the file
 echo "Downloading version 1..."
 curl -X GET "http://localhost:8888/api/v1/files/download/${TEST_FILE_1}" \
     -H "Authorization: Bearer your_token_here" \
@@ -31,7 +31,7 @@ curl -X GET "http://localhost:8888/api/v1/files/download/${TEST_FILE_1}" \
     cat "${ERROR_FILE}"
 }
 
-# 检查文件是否下载成功
+# Check if the files were downloaded successfully
 if [ -f downloaded_file.md ] && [ -s downloaded_file.md ]; then
     echo "Latest version downloaded successfully"
 else
@@ -44,5 +44,5 @@ else
     echo "Failed to download version 1"
 fi
 
-# 清理
+# Cleanup
 rm -f downloaded_file.md downloaded_file_v1.md "${ERROR_FILE}"

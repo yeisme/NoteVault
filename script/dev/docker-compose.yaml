@@ -1,34 +1,40 @@
 # only for development, don't use in production
 name: notevault-dev
 
-x-env: &x-env
+x-pgsql-env: &pgsql-env
   POSTGRES_USER: notevault
   POSTGRES_PASSWORD: notevault
   POSTGRES_DB: notevault
+
+x-minio-env: &minio-env
+  MINIO_ROOT_USER: notevault
+  MINIO_ROOT_PASSWORD: notevault
 
 services:
   postgres:
     image: postgres:17-alpine
     container_name: notevault-postgres
-    environment: *x-env
+    environment: *pgsql-env
     ports:
       - "5432:5432"
     volumes:
       - notevault_db:/var/lib/postgresql/data
       - ../../sql/schema/001-file.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - notevault_network
 
   minio:
     image: minio/minio:latest
     container_name: notevault-minio
-    environment:
-      MINIO_ROOT_USER: notevault
-      MINIO_ROOT_PASSWORD: notevault
+    environment: *minio-env
     command: server /data --console-address ":9001"
     ports:
       - "9000:9000" # API port
       - "9001:9001" # Web UI port
     volumes:
       - notevault_minio:/data
+    networks:
+      - notevault_network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -44,7 +50,7 @@ services:
       - "6222:6222" # Cluster port
     command: >
       --server_name nats-1 
-      --cluster_name NATS 
+      --cluster_name NATS
       --cluster nats://0.0.0.0:6222 
       --routes=nats://nats1:6222
       --http_port 8222
@@ -54,7 +60,7 @@ services:
     volumes:
       - notevault_nats_1:/data
     networks:
-      - nats_network
+      - notevault_network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8222/healthz"]
       interval: 10s
@@ -67,5 +73,5 @@ volumes:
   notevault_nats_1:
 
 networks:
-  nats_network:
-    name: nats
+  notevault_network:
+    name: notevault_network

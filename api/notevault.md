@@ -1,4 +1,4 @@
-### 1. "列出文件，支持分页、筛选和排序。"
+### 1. "List files with support for pagination, filtering, and sorting."
 
 1. route definition
 
@@ -13,18 +13,18 @@
 
 ```golang
 type ListFilesRequest struct {
-	UserID string `form:"userId,optional"` // 按用户ID筛选（管理员可能会使用）
-	FileName string `form:"fileName,optional"` // 按文件名模糊匹配
-	FileType string `form:"fileType,optional"` // 文件类型精确匹配
-	Tag string `form:"tag,optional"` // 按单个标签精确匹配 (未来可支持多标签)
-	CreatedAtStart int64 `form:"createdAtStart,optional"` // 创建时间范围开始 (Unix timestamp)
-	CreatedAtEnd int64 `form:"createdAtEnd,optional"` // 创建时间范围结束 (Unix timestamp)
-	UpdatedAtStart int64 `form:"updatedAtStart,optional"` // 更新时间范围开始 (Unix timestamp)
-	UpdatedAtEnd int64 `form:"updatedAtEnd,optional"` // 更新时间范围结束 (Unix timestamp)
-	Page int `form:"page,default=1"` // 页码
-	PageSize int `form:"pageSize,default=10"` // 每页大小
-	SortBy string `form:"sortBy,optional,options=name|date|size|type"` // 排序字段: name, date (updatedAt), size, type
-	Order string `form:"order,optional,options=asc|desc"` // 排序顺序
+	UserID string `form:"userId,optional"` // Filter by user ID (may be used by administrators)
+	FileName string `form:"fileName,optional"` // Fuzzy match by file name
+	FileType string `form:"fileType,optional"` // Exact match by file type
+	Tag string `form:"tag,optional"` // Exact match by a single tag (multiple tags may be supported in the future)
+	CreatedAtStart int64 `form:"createdAtStart,optional"` // Creation time range start (Unix timestamp)
+	CreatedAtEnd int64 `form:"createdAtEnd,optional"` // Creation time range end (Unix timestamp)
+	UpdatedAtStart int64 `form:"updatedAtStart,optional"` // Update time range start (Unix timestamp)
+	UpdatedAtEnd int64 `form:"updatedAtEnd,optional"` // Update time range end (Unix timestamp)
+	Page int `form:"page,default=1"` // Page number
+	PageSize int `form:"pageSize,default=10"` // Page size
+	SortBy string `form:"sortBy,optional,options=name|date|size|type"` // Sort field: name, date (updatedAt), size, type
+	Order string `form:"order,optional,options=asc|desc"` // Sort order
 }
 ```
 
@@ -42,7 +42,7 @@ type ListFilesResponse struct {
 }
 ```
 
-### 2. "根据文件ID删除文件。"
+### 2. "Delete a file by file ID. Optionally delete a specific version."
 
 1. route definition
 
@@ -58,6 +58,7 @@ type ListFilesResponse struct {
 ```golang
 type FileDeleteRequest struct {
 	FileID string `path:"fileId"`
+	VersionNumber *int `json:"versionNumber,optional"` // Optional, specify to delete a specific version of the file
 }
 ```
 
@@ -72,7 +73,7 @@ type FileDeleteResponse struct {
 }
 ```
 
-### 3. "获取文件的版本历史。"
+### 3. "Get version history for a file."
 
 1. route definition
 
@@ -103,7 +104,7 @@ type GetFileVersionsResponse struct {
 }
 ```
 
-### 4. "(高级) 获取文件两个版本之间的差异信息 (主要针对文本文件)。"
+### 4. "(Advanced) Get differences between two versions of a file (mainly for text files)."
 
 1. route definition
 
@@ -119,8 +120,8 @@ type GetFileVersionsResponse struct {
 ```golang
 type FileVersionDiffRequest struct {
 	FileID string `path:"fileId"`
-	BaseVersion int `form:"baseVersion"` // 基础版本号
-	TargetVersion int `form:"targetVersion"` // 目标版本号
+	BaseVersion int `form:"baseVersion"` // Base version number
+	TargetVersion int `form:"targetVersion"` // Target version number
 }
 ```
 
@@ -134,12 +135,12 @@ type FileVersionDiffResponse struct {
 	FileID string `json:"fileId"`
 	BaseVersion int `json:"baseVersion"`
 	TargetVersion int `json:"targetVersion"`
-	DiffContent string `json:"diffContent"` // 差异内容 (例如 unified diff 格式)
+	DiffContent string `json:"diffContent"` // Difference content (e.g., unified diff format)
 	Message string `json:"message,optional"`
 }
 ```
 
-### 5. "将文件恢复到特定版本。"
+### 5. "Revert a file to a specific version."
 
 1. route definition
 
@@ -155,8 +156,8 @@ type FileVersionDiffResponse struct {
 ```golang
 type RevertFileVersionRequest struct {
 	FileID string `path:"fileId"`
-	Version int `json:"version"` // 要恢复到的版本号
-	CommitMessage string `json:"commitMessage,optional"` // 恢复操作的提交信息
+	Version int `json:"version"` // Version number to revert to
+	CommitMessage string `json:"commitMessage,optional"` // Commit message for the revert operation
 }
 ```
 
@@ -167,27 +168,27 @@ type RevertFileVersionRequest struct {
 
 ```golang
 type RevertFileVersionResponse struct {
-	Metadata FileMetadata `json:"metadata"` // 恢复后，文件当前的元数据（版本已更新）
+	Metadata FileMetadata `json:"metadata"` // Current file metadata after reverting (version is updated)
 	Message string `json:"message"`
 }
 
 type FileMetadata struct {
-	FileID string `json:"fileId"` // 文件唯一ID
-	UserID string `json:"userId"` // 文件所属用户ID
-	FileName string `json:"fileName"` // 文件名
-	FileType string `json:"fileType"` // 文件类型，例如："document", "image", "video", "text"
-	ContentType string `json:"contentType"` // MIME类型，例如："application/pdf", "image/jpeg", "text/plain"
-	Size int64 `json:"size"` // 文件大小（字节）
-	Path string `json:"path"` // 存储路径或键
-	CreatedAt int64 `json:"createdAt"` // 创建时间（Unix时间戳）
-	UpdatedAt int64 `json:"updatedAt"` // 更新时间（Unix时间戳）
-	Version int `json:"version"` // 文件当前版本号
-	Tags []string `json:"tags,optional"` // 标签
-	Description string `json:"description,optional"` // 描述
+	FileID string `json:"fileId"` // Unique file ID
+	UserID string `json:"userId"` // ID of the user who owns the file
+	FileName string `json:"fileName"` // File name
+	FileType string `json:"fileType"` // File type, e.g., "document", "image", "video", "text"
+	ContentType string `json:"contentType"` // MIME type, e.g., "application/pdf", "image/jpeg", "text/plain"
+	Size int64 `json:"size"` // File size in bytes
+	Path string `json:"path"` // Storage path or key
+	CreatedAt int64 `json:"createdAt"` // Creation time (Unix timestamp)
+	UpdatedAt int64 `json:"updatedAt"` // Update time (Unix timestamp)
+	Version int `json:"version"` // Current file version number
+	Tags []string `json:"tags,optional"` // Tags
+	Description string `json:"description,optional"` // Description
 }
 ```
 
-### 6. "批量删除文件。"
+### 6. "Batch delete files."
 
 1. route definition
 
@@ -203,6 +204,7 @@ type FileMetadata struct {
 ```golang
 type BatchDeleteFilesRequest struct {
 	FileIDs []string `json:"fileIds"`
+	VersionNumber *int `json:"versionNumber,optional"` // Optional, specify to delete a specific version of the files
 }
 ```
 
@@ -213,13 +215,13 @@ type BatchDeleteFilesRequest struct {
 
 ```golang
 type BatchDeleteFilesResponse struct {
-	Succeeded []string `json:"succeeded"` // 成功删除的文件ID列表
-	Failed []string `json:"failed"` // 删除失败的文件ID列表 (及原因，可选)
+	Succeeded []string `json:"succeeded"` // List of file IDs that were successfully deleted
+	Failed []string `json:"failed"` // List of file IDs that failed to delete (and reasons, optional)
 	Message string `json:"message"`
 }
 ```
 
-### 7. "根据文件ID下载文件。可选下载特定版本。"
+### 7. "Download a file by file ID. Optionally download a specific version."
 
 1. route definition
 
@@ -235,7 +237,7 @@ type BatchDeleteFilesResponse struct {
 ```golang
 type FileDownloadRequest struct {
 	FileID string `path:"fileId"`
-	VersionID *int `form:"versionId,optional"` // 可选，指定下载特定版本的文件
+	VersionNumber *int `form:"versionNumber,optional"` // Optional, specify to download a specific version of the file
 }
 ```
 
@@ -243,7 +245,7 @@ type FileDownloadRequest struct {
 3. response definition
 
 
-### 8. "获取特定文件的元数据。可选获取特定版本的元数据。"
+### 8. "Get metadata for a specific file. Optionally get metadata for a specific version."
 
 1. route definition
 
@@ -259,7 +261,7 @@ type FileDownloadRequest struct {
 ```golang
 type GetFileMetadataRequest struct {
 	FileID string `path:"fileId"`
-	VersionID *int `form:"versionId,optional"` // 可选，获取特定版本文件的元数据
+	VersionNumber *int `form:"versionNumber,optional"` // Optional, get metadata for a specific version of the file
 }
 ```
 
@@ -274,22 +276,22 @@ type GetFileMetadataResponse struct {
 }
 
 type FileMetadata struct {
-	FileID string `json:"fileId"` // 文件唯一ID
-	UserID string `json:"userId"` // 文件所属用户ID
-	FileName string `json:"fileName"` // 文件名
-	FileType string `json:"fileType"` // 文件类型，例如："document", "image", "video", "text"
-	ContentType string `json:"contentType"` // MIME类型，例如："application/pdf", "image/jpeg", "text/plain"
-	Size int64 `json:"size"` // 文件大小（字节）
-	Path string `json:"path"` // 存储路径或键
-	CreatedAt int64 `json:"createdAt"` // 创建时间（Unix时间戳）
-	UpdatedAt int64 `json:"updatedAt"` // 更新时间（Unix时间戳）
-	Version int `json:"version"` // 文件当前版本号
-	Tags []string `json:"tags,optional"` // 标签
-	Description string `json:"description,optional"` // 描述
+	FileID string `json:"fileId"` // Unique file ID
+	UserID string `json:"userId"` // ID of the user who owns the file
+	FileName string `json:"fileName"` // File name
+	FileType string `json:"fileType"` // File type, e.g., "document", "image", "video", "text"
+	ContentType string `json:"contentType"` // MIME type, e.g., "application/pdf", "image/jpeg", "text/plain"
+	Size int64 `json:"size"` // File size in bytes
+	Path string `json:"path"` // Storage path or key
+	CreatedAt int64 `json:"createdAt"` // Creation time (Unix timestamp)
+	UpdatedAt int64 `json:"updatedAt"` // Update time (Unix timestamp)
+	Version int `json:"version"` // Current file version number
+	Tags []string `json:"tags,optional"` // Tags
+	Description string `json:"description,optional"` // Description
 }
 ```
 
-### 9. "更新特定文件的元数据。这通常会创建一个新版本。"
+### 9. "Update metadata for a specific file. This typically creates a new version."
 
 1. route definition
 
@@ -308,7 +310,7 @@ type UpdateFileMetadataRequest struct {
 	FileName string `json:"fileName,optional"`
 	Description string `json:"description,optional"`
 	Tags []string `json:"tags,optional"`
-	CommitMessage string `json:"commitMessage,optional"` // 版本提交信息
+	CommitMessage string `json:"commitMessage,optional"` // Version commit message
 }
 ```
 
@@ -319,27 +321,27 @@ type UpdateFileMetadataRequest struct {
 
 ```golang
 type UpdateFileMetadataResponse struct {
-	Metadata FileMetadata `json:"metadata"` // 更新后的元数据，包含新的版本号
+	Metadata FileMetadata `json:"metadata"` // Updated metadata, including the new version number
 	Message string `json:"message"`
 }
 
 type FileMetadata struct {
-	FileID string `json:"fileId"` // 文件唯一ID
-	UserID string `json:"userId"` // 文件所属用户ID
-	FileName string `json:"fileName"` // 文件名
-	FileType string `json:"fileType"` // 文件类型，例如："document", "image", "video", "text"
-	ContentType string `json:"contentType"` // MIME类型，例如："application/pdf", "image/jpeg", "text/plain"
-	Size int64 `json:"size"` // 文件大小（字节）
-	Path string `json:"path"` // 存储路径或键
-	CreatedAt int64 `json:"createdAt"` // 创建时间（Unix时间戳）
-	UpdatedAt int64 `json:"updatedAt"` // 更新时间（Unix时间戳）
-	Version int `json:"version"` // 文件当前版本号
-	Tags []string `json:"tags,optional"` // 标签
-	Description string `json:"description,optional"` // 描述
+	FileID string `json:"fileId"` // Unique file ID
+	UserID string `json:"userId"` // ID of the user who owns the file
+	FileName string `json:"fileName"` // File name
+	FileType string `json:"fileType"` // File type, e.g., "document", "image", "video", "text"
+	ContentType string `json:"contentType"` // MIME type, e.g., "application/pdf", "image/jpeg", "text/plain"
+	Size int64 `json:"size"` // File size in bytes
+	Path string `json:"path"` // Storage path or key
+	CreatedAt int64 `json:"createdAt"` // Creation time (Unix timestamp)
+	UpdatedAt int64 `json:"updatedAt"` // Update time (Unix timestamp)
+	Version int `json:"version"` // Current file version number
+	Tags []string `json:"tags,optional"` // Tags
+	Description string `json:"description,optional"` // Description
 }
 ```
 
-### 10. "上传一个新文件。实际文件以 multipart/form-data 形式发送。"
+### 10. "Upload a new file. The actual file is sent as multipart/form-data."
 
 1. route definition
 
@@ -354,11 +356,11 @@ type FileMetadata struct {
 
 ```golang
 type FileUploadRequest struct {
-	FileName string `form:"fileName,optional"` // 可选：如果未提供，则使用上传文件的名称
-	FileType string `form:"fileType,optional"` // 可选：可以推断或指定
-	Description string `form:"description,optional"` // 描述
-	Tags string `form:"tags,optional"` // 逗号分隔的标签
-	CommitMessage string `form:"commitMessage,optional"` // 版本提交信息
+	FileName string `form:"fileName,optional"` // Optional: If not provided, the name of the uploaded file will be used
+	FileType string `form:"fileType,optional"` // Optional: Can be inferred or specified
+	Description string `form:"description,optional"` // Description
+	Tags string `form:"tags,optional"` // Comma-separated tags
+	CommitMessage string `form:"commitMessage,optional"` // Version commit message
 }
 ```
 
@@ -374,7 +376,7 @@ type FileUploadResponse struct {
 	ContentType string `json:"contentType"`
 	Size int64 `json:"size"`
 	Message string `json:"message"`
-	Version int `json:"version"` // 上传后的文件版本号
+	Version int `json:"version"` // File version number after upload
 }
 ```
 

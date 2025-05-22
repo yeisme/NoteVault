@@ -35,6 +35,8 @@ func newFileVersion(db *gorm.DB, opts ...gen.DOOption) fileVersion {
 	_fileVersion.Path = field.NewString(tableName, "path")
 	_fileVersion.ContentType = field.NewString(tableName, "content_type")
 	_fileVersion.CreatedAt = field.NewInt64(tableName, "created_at")
+	_fileVersion.DeletedAt = field.NewInt64(tableName, "deleted_at")
+	_fileVersion.Status = field.NewInt32(tableName, "status")
 	_fileVersion.CommitMessage = field.NewString(tableName, "commit_message")
 
 	_fileVersion.fillFieldMap()
@@ -53,6 +55,8 @@ type fileVersion struct {
 	Path          field.String
 	ContentType   field.String
 	CreatedAt     field.Int64
+	DeletedAt     field.Int64
+	Status        field.Int32
 	CommitMessage field.String
 
 	fieldMap map[string]field.Expr
@@ -77,6 +81,8 @@ func (f *fileVersion) updateTableName(table string) *fileVersion {
 	f.Path = field.NewString(table, "path")
 	f.ContentType = field.NewString(table, "content_type")
 	f.CreatedAt = field.NewInt64(table, "created_at")
+	f.DeletedAt = field.NewInt64(table, "deleted_at")
+	f.Status = field.NewInt32(table, "status")
 	f.CommitMessage = field.NewString(table, "commit_message")
 
 	f.fillFieldMap()
@@ -94,7 +100,7 @@ func (f *fileVersion) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (f *fileVersion) fillFieldMap() {
-	f.fieldMap = make(map[string]field.Expr, 8)
+	f.fieldMap = make(map[string]field.Expr, 10)
 	f.fieldMap["version_id"] = f.VersionID
 	f.fieldMap["file_id"] = f.FileID
 	f.fieldMap["version_number"] = f.VersionNumber
@@ -102,6 +108,8 @@ func (f *fileVersion) fillFieldMap() {
 	f.fieldMap["path"] = f.Path
 	f.fieldMap["content_type"] = f.ContentType
 	f.fieldMap["created_at"] = f.CreatedAt
+	f.fieldMap["deleted_at"] = f.DeletedAt
+	f.fieldMap["status"] = f.Status
 	f.fieldMap["commit_message"] = f.CommitMessage
 }
 

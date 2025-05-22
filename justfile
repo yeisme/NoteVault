@@ -7,9 +7,13 @@ API_FILE:= "./notevault.api"
 # Setting
 set dotenv-load
 
+# Generate all artifacts: Generate documentation and Golang code
+gen-all: gen-doc gen-go gen-sql2go
+
 # Generate API documentation
 gen-doc:
     @echo "Generating Swagger documentation..."
+    rm api/notevault.*
     goctl api swagger --api {{ API_FILE }} --dir api
     @echo "Generating default goctl API documentation..."
     goctl api doc --dir . -o api
@@ -57,6 +61,11 @@ gen-go:
     goctl api go --api {{ API_FILE }} --dir .
     @echo "API file generation complete."
 
+# Generate Golang code from the sql file to the gorm gen file
+gen-sql2go:
+    go generate ./...
+    @echo "SQL to Go generation complete."
+
 # Help
 help:
     @just --list
@@ -103,6 +112,12 @@ validate:
     go run . validate
     @echo "Configuration validation complete."
 
+# Set a Development environment with docker compose
+dev:
+    @echo "Setting up development environment with Docker Compose..."
+    docker-compose -f script/dev/docker-compose.yaml up -d
+    @echo "Development environment is up and running."
+
 alias b := build
 alias df := dep-fmt
 alias g := gen-go
@@ -113,3 +128,5 @@ alias c := clean
 alias i := init
 alias h := hot
 alias v := validate
+alias ga := gen-all
+alias g2 := gen-sql2go

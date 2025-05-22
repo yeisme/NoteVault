@@ -18,6 +18,12 @@ CREATE TABLE IF NOT EXISTS files (
     -- 创建时间(Unix时间戳)
     updated_at BIGINT NOT NULL,
     -- 更新时间(Unix时间戳)
+    deleted_at BIGINT DEFAULT NULL,
+    -- 软删除时间(Unix时间戳)，NULL表示未删除
+    status SMALLINT NOT NULL DEFAULT 0,
+    -- 文件状态: 0=正常, 1=存档, 2=回收站, 3=待删除
+    trashed_at BIGINT DEFAULT NULL,
+    -- 移入回收站时间(Unix时间戳)
     current_version INT NOT NULL DEFAULT 1,
     -- 当前版本号
     description TEXT -- 文件描述
@@ -43,6 +49,10 @@ CREATE TABLE IF NOT EXISTS file_versions (
     -- 该版本MIME类型
     created_at BIGINT NOT NULL,
     -- 版本创建时间(Unix时间戳)
+    deleted_at BIGINT DEFAULT NULL,
+    -- 软删除时间(Unix时间戳)，NULL表示未删除
+    status SMALLINT NOT NULL DEFAULT 0,
+    -- 版本状态: 0=正常, 1=过时, 2=已替换
     commit_message TEXT,
     -- 版本提交信息
     -- 外键和约束

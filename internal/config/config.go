@@ -64,8 +64,8 @@ type (
 		TLSKey    string `json:",optional"` // TLS key path
 		TLSCaCert string `json:",optional"` // TLS CA certificate path
 		// JetStream support
-		EnableJetStream  bool   `json:",optional"`                    // Whether to enable JetStream
-		JetStreamDomain  string `json:",optional"`                    // JetStream domain
-		JetStreamPrefix  string `json:",optional,default=NOTEVAULT_"` // JetStream prefix
+		EnableJetStream bool   `json:",optional"`                    // Whether to enable JetStream
+		JetStreamDomain string `json:",optional"`                    // JetStream domain
+		JetStreamPrefix string `json:",optional,default=NOTEVAULT_"` // JetStream prefix
 	}
 )

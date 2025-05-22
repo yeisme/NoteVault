@@ -4,17 +4,19 @@
 package types
 
 type BatchDeleteFilesRequest struct {
-	FileIDs []string `json:"fileIds"`
+	FileIDs       []string `json:"fileIds"`
+	VersionNumber *int     `json:"versionNumber,optional"` // Optional, specify to delete a specific version of the files
 }
 
 type BatchDeleteFilesResponse struct {
-	Succeeded []string `json:"succeeded"` // 成功删除的文件ID列表
-	Failed    []string `json:"failed"`    // 删除失败的文件ID列表 (及原因，可选)
+	Succeeded []string `json:"succeeded"` // List of file IDs that were successfully deleted
+	Failed    []string `json:"failed"`    // List of file IDs that failed to delete (and reasons, optional)
 	Message   string   `json:"message"`
 }
 
 type FileDeleteRequest struct {
-	FileID string `path:"fileId"`
+	FileID        string `path:"fileId"`
+	VersionNumber *int   `json:"versionNumber,optional"` // Optional, specify to delete a specific version of the file
 }
 
 type FileDeleteResponse struct {
@@ -22,16 +24,16 @@ type FileDeleteResponse struct {
 }
 
 type FileDownloadRequest struct {
-	FileID    string `path:"fileId"`
-	VersionID *int   `form:"versionId,optional"` // 可选，指定下载特定版本的文件
+	FileID        string `path:"fileId"`
+	VersionNumber *int   `form:"versionNumber,optional"` // Optional, specify to download a specific version of the file
 }
 
 type FileUploadRequest struct {
-	FileName      string `form:"fileName,optional"`      // 可选：如果未提供，则使用上传文件的名称
-	FileType      string `form:"fileType,optional"`      // 可选：可以推断或指定
-	Description   string `form:"description,optional"`   // 描述
-	Tags          string `form:"tags,optional"`          // 逗号分隔的标签
-	CommitMessage string `form:"commitMessage,optional"` // 版本提交信息
+	FileName      string `form:"fileName,optional"`      // Optional: If not provided, the name of the uploaded file will be used
+	FileType      string `form:"fileType,optional"`      // Optional: Can be inferred or specified
+	Description   string `form:"description,optional"`   // Description
+	Tags          string `form:"tags,optional"`          // Comma-separated tags
+	CommitMessage string `form:"commitMessage,optional"` // Version commit message
 }
 
 type FileUploadResponse struct {
@@ -40,26 +42,26 @@ type FileUploadResponse struct {
 	ContentType string `json:"contentType"`
 	Size        int64  `json:"size"`
 	Message     string `json:"message"`
-	Version     int    `json:"version"` // 上传后的文件版本号
+	Version     int    `json:"version"` // File version number after upload
 }
 
 type FileVersionDiffRequest struct {
 	FileID        string `path:"fileId"`
-	BaseVersion   int    `form:"baseVersion"`   // 基础版本号
-	TargetVersion int    `form:"targetVersion"` // 目标版本号
+	BaseVersion   int    `form:"baseVersion"`   // Base version number
+	TargetVersion int    `form:"targetVersion"` // Target version number
 }
 
 type FileVersionDiffResponse struct {
 	FileID        string `json:"fileId"`
 	BaseVersion   int    `json:"baseVersion"`
 	TargetVersion int    `json:"targetVersion"`
-	DiffContent   string `json:"diffContent"` // 差异内容 (例如 unified diff 格式)
+	DiffContent   string `json:"diffContent"` // Difference content (e.g., unified diff format)
 	Message       string `json:"message,optional"`
 }
 
 type GetFileMetadataRequest struct {
-	FileID    string `path:"fileId"`
-	VersionID *int   `form:"versionId,optional"` // 可选，获取特定版本文件的元数据
+	FileID        string `path:"fileId"`
+	VersionNumber *int   `form:"versionNumber,optional"` // Optional, get metadata for a specific version of the file
 }
 
 type GetFileMetadataResponse struct {
@@ -76,18 +78,18 @@ type GetFileVersionsResponse struct {
 }
 
 type ListFilesRequest struct {
-	UserID         string `form:"userId,optional"`                             // 按用户ID筛选（管理员可能会使用）
-	FileName       string `form:"fileName,optional"`                           // 按文件名模糊匹配
-	FileType       string `form:"fileType,optional"`                           // 文件类型精确匹配
-	Tag            string `form:"tag,optional"`                                // 按单个标签精确匹配 (未来可支持多标签)
-	CreatedAtStart int64  `form:"createdAtStart,optional"`                     // 创建时间范围开始 (Unix timestamp)
-	CreatedAtEnd   int64  `form:"createdAtEnd,optional"`                       // 创建时间范围结束 (Unix timestamp)
-	UpdatedAtStart int64  `form:"updatedAtStart,optional"`                     // 更新时间范围开始 (Unix timestamp)
-	UpdatedAtEnd   int64  `form:"updatedAtEnd,optional"`                       // 更新时间范围结束 (Unix timestamp)
-	Page           int    `form:"page,default=1"`                              // 页码
-	PageSize       int    `form:"pageSize,default=10"`                         // 每页大小
-	SortBy         string `form:"sortBy,optional,options=name|date|size|type"` // 排序字段: name, date (updatedAt), size, type
-	Order          string `form:"order,optional,options=asc|desc"`             // 排序顺序
+	UserID         string `form:"userId,optional"`                             // Filter by user ID (may be used by administrators)
+	FileName       string `form:"fileName,optional"`                           // Fuzzy match by file name
+	FileType       string `form:"fileType,optional"`                           // Exact match by file type
+	Tag            string `form:"tag,optional"`                                // Exact match by a single tag (multiple tags may be supported in the future)
+	CreatedAtStart int64  `form:"createdAtStart,optional"`                     // Creation time range start (Unix timestamp)
+	CreatedAtEnd   int64  `form:"createdAtEnd,optional"`                       // Creation time range end (Unix timestamp)
+	UpdatedAtStart int64  `form:"updatedAtStart,optional"`                     // Update time range start (Unix timestamp)
+	UpdatedAtEnd   int64  `form:"updatedAtEnd,optional"`                       // Update time range end (Unix timestamp)
+	Page           int    `form:"page,default=1"`                              // Page number
+	PageSize       int    `form:"pageSize,default=10"`                         // Page size
+	SortBy         string `form:"sortBy,optional,options=name|date|size|type"` // Sort field: name, date (updatedAt), size, type
+	Order          string `form:"order,optional,options=asc|desc"`             // Sort order
 }
 
 type ListFilesResponse struct {
@@ -99,12 +101,12 @@ type ListFilesResponse struct {
 
 type RevertFileVersionRequest struct {
 	FileID        string `path:"fileId"`
-	Version       int    `json:"version"`                // 要恢复到的版本号
-	CommitMessage string `json:"commitMessage,optional"` // 恢复操作的提交信息
+	Version       int    `json:"version"`                // Version number to revert to
+	CommitMessage string `json:"commitMessage,optional"` // Commit message for the revert operation
 }
 
 type RevertFileVersionResponse struct {
-	Metadata FileMetadata `json:"metadata"` // 恢复后，文件当前的元数据（版本已更新）
+	Metadata FileMetadata `json:"metadata"` // Current file metadata after reverting (version is updated)
 	Message  string       `json:"message"`
 }
 
@@ -113,10 +115,10 @@ type UpdateFileMetadataRequest struct {
 	FileName      string   `json:"fileName,optional"`
 	Description   string   `json:"description,optional"`
 	Tags          []string `json:"tags,optional"`
-	CommitMessage string   `json:"commitMessage,optional"` // 版本提交信息
+	CommitMessage string   `json:"commitMessage,optional"` // Version commit message
 }
 
 type UpdateFileMetadataResponse struct {
-	Metadata FileMetadata `json:"metadata"` // 更新后的元数据，包含新的版本号
+	Metadata FileMetadata `json:"metadata"` // Updated metadata, including the new version number
 	Message  string       `json:"message"`
 }

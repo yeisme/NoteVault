@@ -37,6 +37,9 @@ func newFile(db *gorm.DB, opts ...gen.DOOption) file {
 	_file.Path = field.NewString(tableName, "path")
 	_file.CreatedAt = field.NewInt64(tableName, "created_at")
 	_file.UpdatedAt = field.NewInt64(tableName, "updated_at")
+	_file.DeletedAt = field.NewInt64(tableName, "deleted_at")
+	_file.Status = field.NewInt32(tableName, "status")
+	_file.TrashedAt = field.NewInt64(tableName, "trashed_at")
 	_file.CurrentVersion = field.NewInt32(tableName, "current_version")
 	_file.Description = field.NewString(tableName, "description")
 
@@ -58,6 +61,9 @@ type file struct {
 	Path           field.String
 	CreatedAt      field.Int64
 	UpdatedAt      field.Int64
+	DeletedAt      field.Int64
+	Status         field.Int32
+	TrashedAt      field.Int64
 	CurrentVersion field.Int32
 	Description    field.String
 
@@ -85,6 +91,9 @@ func (f *file) updateTableName(table string) *file {
 	f.Path = field.NewString(table, "path")
 	f.CreatedAt = field.NewInt64(table, "created_at")
 	f.UpdatedAt = field.NewInt64(table, "updated_at")
+	f.DeletedAt = field.NewInt64(table, "deleted_at")
+	f.Status = field.NewInt32(table, "status")
+	f.TrashedAt = field.NewInt64(table, "trashed_at")
 	f.CurrentVersion = field.NewInt32(table, "current_version")
 	f.Description = field.NewString(table, "description")
 
@@ -103,7 +112,7 @@ func (f *file) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (f *file) fillFieldMap() {
-	f.fieldMap = make(map[string]field.Expr, 11)
+	f.fieldMap = make(map[string]field.Expr, 14)
 	f.fieldMap["file_id"] = f.FileID
 	f.fieldMap["user_id"] = f.UserID
 	f.fieldMap["file_name"] = f.FileName
@@ -113,6 +122,9 @@ func (f *file) fillFieldMap() {
 	f.fieldMap["path"] = f.Path
 	f.fieldMap["created_at"] = f.CreatedAt
 	f.fieldMap["updated_at"] = f.UpdatedAt
+	f.fieldMap["deleted_at"] = f.DeletedAt
+	f.fieldMap["status"] = f.Status
+	f.fieldMap["trashed_at"] = f.TrashedAt
 	f.fieldMap["current_version"] = f.CurrentVersion
 	f.fieldMap["description"] = f.Description
 }

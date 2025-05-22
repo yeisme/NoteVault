@@ -16,61 +16,61 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				// 列出文件，支持分页、筛选和排序。
+				// List files with support for pagination, filtering, and sorting.
 				Method:  http.MethodGet,
 				Path:    "/",
 				Handler: file.ListFilesHandler(serverCtx),
 			},
 			{
-				// 根据文件ID删除文件。
+				// Delete a file by file ID. Optionally delete a specific version.
 				Method:  http.MethodDelete,
 				Path:    "/:fileId",
 				Handler: file.DeleteFileHandler(serverCtx),
 			},
 			{
-				// 获取文件的版本历史。
+				// Get version history for a file.
 				Method:  http.MethodGet,
 				Path:    "/:fileId/versions",
 				Handler: file.GetFileVersionsHandler(serverCtx),
 			},
 			{
-				// (高级) 获取文件两个版本之间的差异信息 (主要针对文本文件)。
+				// (Advanced) Get differences between two versions of a file (mainly for text files).
 				Method:  http.MethodGet,
 				Path:    "/:fileId/versions/diff",
 				Handler: file.GetFileVersionDiffHandler(serverCtx),
 			},
 			{
-				// 将文件恢复到特定版本。
+				// Revert a file to a specific version.
 				Method:  http.MethodPost,
 				Path:    "/:fileId/versions/revert",
 				Handler: file.RevertFileVersionHandler(serverCtx),
 			},
 			{
-				// 批量删除文件。
+				// Batch delete files.
 				Method:  http.MethodPost,
 				Path:    "/batch/delete",
 				Handler: file.BatchDeleteFilesHandler(serverCtx),
 			},
 			{
-				// 根据文件ID下载文件。可选下载特定版本。
+				// Download a file by file ID. Optionally download a specific version.
 				Method:  http.MethodGet,
 				Path:    "/download/:fileId",
 				Handler: file.DownloadFileHandler(serverCtx),
 			},
 			{
-				// 获取特定文件的元数据。可选获取特定版本的元数据。
+				// Get metadata for a specific file. Optionally get metadata for a specific version.
 				Method:  http.MethodGet,
 				Path:    "/metadata/:fileId",
 				Handler: file.GetFileMetadataHandler(serverCtx),
 			},
 			{
-				// 更新特定文件的元数据。这通常会创建一个新版本。
+				// Update metadata for a specific file. This typically creates a new version.
 				Method:  http.MethodPut,
 				Path:    "/metadata/:fileId",
 				Handler: file.UpdateFileMetadataHandler(serverCtx),
 			},
 			{
-				// 上传一个新文件。实际文件以 multipart/form-data 形式发送。
+				// Upload a new file. The actual file is sent as multipart/form-data.
 				Method:  http.MethodPost,
 				Path:    "/upload",
 				Handler: file.UploadFileHandler(serverCtx),

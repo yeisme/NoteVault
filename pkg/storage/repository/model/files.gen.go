@@ -17,6 +17,9 @@ type File struct {
 	Path           string `gorm:"column:path;not null" json:"path"`
 	CreatedAt      int64  `gorm:"column:created_at;not null" json:"created_at"`
 	UpdatedAt      int64  `gorm:"column:updated_at;not null" json:"updated_at"`
+	DeletedAt      int64  `gorm:"column:deleted_at" json:"deleted_at"`
+	Status         int32  `gorm:"column:status;not null" json:"status"`
+	TrashedAt      int64  `gorm:"column:trashed_at" json:"trashed_at"`
 	CurrentVersion int32  `gorm:"column:current_version;not null;default:1" json:"current_version"`
 	Description    string `gorm:"column:description" json:"description"`
 }

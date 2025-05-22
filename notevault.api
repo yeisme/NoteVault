@@ -2,219 +2,221 @@ syntax = "v1"
 
 info (
 	title:       "notevault API"
-	desc:        "notevault 文件及元数据管理 API"
+	desc:        "notevault file and metadata management API"
 	author:      "yeisme"
 	email:       "yefun2004@gmail.com"
 	version:     "v1"
 	host:        "localhost"
-	description: "notevault API 文档"
+	description: "notevault API documentation"
 	licenseName: "MIT"
 )
 
 type (
-	// FileMetadata 定义文件元数据的结构
+	// FileMetadata defines the structure of file metadata
 	FileMetadata {
-		FileID      string   `json:"fileId"` // 文件唯一ID
-		UserID      string   `json:"userId"` // 文件所属用户ID
-		FileName    string   `json:"fileName"` // 文件名
-		FileType    string   `json:"fileType"` // 文件类型，例如："document", "image", "video", "text"
-		ContentType string   `json:"contentType"` // MIME类型，例如："application/pdf", "image/jpeg", "text/plain"
-		Size        int64    `json:"size"` // 文件大小（字节）
-		Path        string   `json:"path"` // 存储路径或键
-		CreatedAt   int64    `json:"createdAt"` // 创建时间（Unix时间戳）
-		UpdatedAt   int64    `json:"updatedAt"` // 更新时间（Unix时间戳）
-		Version     int      `json:"version"` // 文件当前版本号
-		Tags        []string `json:"tags,optional"` // 标签
-		Description string   `json:"description,optional"` // 描述
+		FileID      string   `json:"fileId"` // Unique file ID
+		UserID      string   `json:"userId"` // ID of the user who owns the file
+		FileName    string   `json:"fileName"` // File name
+		FileType    string   `json:"fileType"` // File type, e.g., "document", "image", "video", "text"
+		ContentType string   `json:"contentType"` // MIME type, e.g., "application/pdf", "image/jpeg", "text/plain"
+		Size        int64    `json:"size"` // File size in bytes
+		Path        string   `json:"path"` // Storage path or key
+		CreatedAt   int64    `json:"createdAt"` // Creation time (Unix timestamp)
+		UpdatedAt   int64    `json:"updatedAt"` // Update time (Unix timestamp)
+		Version     int      `json:"version"` // Current file version number
+		Tags        []string `json:"tags,optional"` // Tags
+		Description string   `json:"description,optional"` // Description
 	}
-	// FileUploadRequest 定义上传文件的请求
-	// 文件分块和断点续传的具体实现通常在客户端和服务端传输层处理，API层面仍表现为文件上传
+	// FileUploadRequest defines the request for uploading a file
+	// Implementation of file chunking and resumable uploads is typically handled at the client and server transport layer, while at the API level it still appears as a file upload
 	FileUploadRequest {
-		FileName      string `form:"fileName,optional"` // 可选：如果未提供，则使用上传文件的名称
-		FileType      string `form:"fileType,optional"` // 可选：可以推断或指定
-		Description   string `form:"description,optional"` // 描述
-		Tags          string `form:"tags,optional"` // 逗号分隔的标签
-		CommitMessage string `form:"commitMessage,optional"` // 版本提交信息
+		FileName      string `form:"fileName,optional"` // Optional: If not provided, the name of the uploaded file will be used
+		FileType      string `form:"fileType,optional"` // Optional: Can be inferred or specified
+		Description   string `form:"description,optional"` // Description
+		Tags          string `form:"tags,optional"` // Comma-separated tags
+		CommitMessage string `form:"commitMessage,optional"` // Version commit message
 	}
-	// FileUploadResponse 定义文件上传成功后的响应
+	// FileUploadResponse defines the response after a successful file upload
 	FileUploadResponse {
 		FileID      string `json:"fileId"`
 		FileName    string `json:"fileName"`
 		ContentType string `json:"contentType"`
 		Size        int64  `json:"size"`
 		Message     string `json:"message"`
-		Version     int    `json:"version"` // 上传后的文件版本号
+		Version     int    `json:"version"` // File version number after upload
 	}
-	// FileDownloadRequest 定义下载文件的请求
+	// FileDownloadRequest defines the request for downloading a file
 	FileDownloadRequest {
-		FileID    string `path:"fileId"`
-		VersionID *int   `form:"versionId,optional"` // 可选，指定下载特定版本的文件
+		FileID        string `path:"fileId"`
+		VersionNumber *int   `form:"versionNumber,optional"` // Optional, specify to download a specific version of the file
 	}
-	// 注意: FileDownloadResponse 将是实际的文件流，而不是JSON。
-	// FilePreviewRequest 定义预览文件的请求
+	// Note: FileDownloadResponse will be the actual file stream, not JSON.
+	// FilePreviewRequest defines the request for previewing a file
 	FilePreviewRequest {
-		FileID    string `path:"fileId"`
-		VersionID *int   `form:"versionId,optional"` // 可选，指定预览特定版本的文件
+		FileID        string `path:"fileId"`
+		VersionNumber *int   `form:"versionNumber,optional"` // Optional, specify to preview a specific version of the file
 	}
-	// 注意: FilePreviewResponse 将是实际的文件流或特定预览格式（如HTML），而不是JSON。
-	// FileDeleteRequest 定义删除文件的请求
+	// Note: FilePreviewResponse will be the actual file stream or a specific preview format (such as HTML), not JSON.
+	// FileDeleteRequest defines the request for deleting a file
 	FileDeleteRequest {
-		FileID string `path:"fileId"`
+		FileID        string `path:"fileId"`
+		VersionNumber *int   `json:"versionNumber,optional"` // Optional, specify to delete a specific version of the file
 	}
-	// FileDeleteResponse 定义删除文件后的响应
+	// FileDeleteResponse defines the response after deleting a file
 	FileDeleteResponse {
 		Message string `json:"message"`
 	}
-	// BatchDeleteFilesRequest 定义批量删除文件的请求
+	// BatchDeleteFilesRequest defines the request for batch deleting files
 	BatchDeleteFilesRequest {
-		FileIDs []string `json:"fileIds"`
+		FileIDs       []string `json:"fileIds"`
+		VersionNumber *int     `json:"versionNumber,optional"` // Optional, specify to delete a specific version of the files
 	}
-	// BatchDeleteFilesResponse 定义批量删除文件后的响应
+	// BatchDeleteFilesResponse defines the response after batch deleting files
 	BatchDeleteFilesResponse {
-		Succeeded []string `json:"succeeded"` // 成功删除的文件ID列表
-		Failed    []string `json:"failed"` // 删除失败的文件ID列表 (及原因，可选)
+		Succeeded []string `json:"succeeded"` // List of file IDs that were successfully deleted
+		Failed    []string `json:"failed"` // List of file IDs that failed to delete (and reasons, optional)
 		Message   string   `json:"message"`
 	}
-	// GetFileMetadataRequest 定义检索文件元数据的请求
+	// GetFileMetadataRequest defines the request for retrieving file metadata
 	GetFileMetadataRequest {
-		FileID    string `path:"fileId"`
-		VersionID *int   `form:"versionId,optional"` // 可选，获取特定版本文件的元数据
+		FileID        string `path:"fileId"`
+		VersionNumber *int   `form:"versionNumber,optional"` // Optional, get metadata for a specific version of the file
 	}
-	// GetFileMetadataResponse 定义包含文件元数据的响应
+	// GetFileMetadataResponse defines the response containing file metadata
 	GetFileMetadataResponse {
 		Metadata FileMetadata `json:"metadata"`
 	}
-	// UpdateFileMetadataRequest 定义更新文件元数据的请求
-	// 更新元数据通常会创建新版本
+	// UpdateFileMetadataRequest defines the request for updating file metadata
+	// Updating metadata typically creates a new version
 	UpdateFileMetadataRequest {
 		FileID        string   `path:"fileId"`
 		FileName      string   `json:"fileName,optional"`
 		Description   string   `json:"description,optional"`
 		Tags          []string `json:"tags,optional"`
-		CommitMessage string   `json:"commitMessage,optional"` // 版本提交信息
+		CommitMessage string   `json:"commitMessage,optional"` // Version commit message
 	}
-	// UpdateFileMetadataResponse 定义更新文件元数据后的响应
+	// UpdateFileMetadataResponse defines the response after updating file metadata
 	UpdateFileMetadataResponse {
-		Metadata FileMetadata `json:"metadata"` // 更新后的元数据，包含新的版本号
+		Metadata FileMetadata `json:"metadata"` // Updated metadata, including the new version number
 		Message  string       `json:"message"`
 	}
-	// ListFilesRequest 定义带分页和筛选功能的文件列表请求
+	// ListFilesRequest defines the request for listing files with pagination and filtering
 	ListFilesRequest {
-		UserID         string `form:"userId,optional"` // 按用户ID筛选（管理员可能会使用）
-		FileName       string `form:"fileName,optional"` // 按文件名模糊匹配
-		FileType       string `form:"fileType,optional"` // 文件类型精确匹配
-		Tag            string `form:"tag,optional"` // 按单个标签精确匹配 (未来可支持多标签)
-		CreatedAtStart int64  `form:"createdAtStart,optional"` // 创建时间范围开始 (Unix timestamp)
-		CreatedAtEnd   int64  `form:"createdAtEnd,optional"` // 创建时间范围结束 (Unix timestamp)
-		UpdatedAtStart int64  `form:"updatedAtStart,optional"` // 更新时间范围开始 (Unix timestamp)
-		UpdatedAtEnd   int64  `form:"updatedAtEnd,optional"` // 更新时间范围结束 (Unix timestamp)
-		Page           int    `form:"page,default=1"` // 页码
-		PageSize       int    `form:"pageSize,default=10"` // 每页大小
-		SortBy         string `form:"sortBy,optional,options=name|date|size|type"` // 排序字段: name, date (updatedAt), size, type
-		Order          string `form:"order,optional,options=asc|desc"` // 排序顺序
+		UserID         string `form:"userId,optional"` // Filter by user ID (may be used by administrators)
+		FileName       string `form:"fileName,optional"` // Fuzzy match by file name
+		FileType       string `form:"fileType,optional"` // Exact match by file type
+		Tag            string `form:"tag,optional"` // Exact match by a single tag (multiple tags may be supported in the future)
+		CreatedAtStart int64  `form:"createdAtStart,optional"` // Creation time range start (Unix timestamp)
+		CreatedAtEnd   int64  `form:"createdAtEnd,optional"` // Creation time range end (Unix timestamp)
+		UpdatedAtStart int64  `form:"updatedAtStart,optional"` // Update time range start (Unix timestamp)
+		UpdatedAtEnd   int64  `form:"updatedAtEnd,optional"` // Update time range end (Unix timestamp)
+		Page           int    `form:"page,default=1"` // Page number
+		PageSize       int    `form:"pageSize,default=10"` // Page size
+		SortBy         string `form:"sortBy,optional,options=name|date|size|type"` // Sort field: name, date (updatedAt), size, type
+		Order          string `form:"order,optional,options=asc|desc"` // Sort order
 	}
-	// ListFilesResponse 定义文件列表的响应
+	// ListFilesResponse defines the response for file listing
 	ListFilesResponse {
 		Files      []FileMetadata `json:"files"`
 		TotalCount int64          `json:"totalCount"`
 		Page       int            `json:"page"`
 		PageSize   int            `json:"pageSize"`
 	}
-	// GetFileVersionsRequest 定义获取文件版本历史的请求
+	// GetFileVersionsRequest defines the request for getting file version history
 	GetFileVersionsRequest {
 		FileID string `path:"fileId"`
 	}
-	// FileVersionInfo 定义特定文件版本的信息
+	// FileVersionInfo defines information about a specific file version
 	FileVersionInfo {
-		Version       int    `json:"version"` // 版本号
-		Size          int64  `json:"size"` // 文件大小
-		CreatedAt     int64  `json:"createdAt"` // 版本创建时间
-		ContentType   string `json:"contentType"` // 该版本的文件MIME类型
-		CommitMessage string `json:"commitMessage,optional"` // 此版本的提交信息
+		Version       int    `json:"version"` // Version number
+		Size          int64  `json:"size"` // File size
+		CreatedAt     int64  `json:"createdAt"` // Version creation time
+		ContentType   string `json:"contentType"` // MIME type of this version of the file
+		CommitMessage string `json:"commitMessage,optional"` // Commit message for this version
 	}
-	// GetFileVersionsResponse 定义文件版本历史的响应
+	// GetFileVersionsResponse defines the response for file version history
 	GetFileVersionsResponse {
 		FileID   string            `json:"fileId"`
 		Versions []FileVersionInfo `json:"versions"`
 	}
-	// RevertFileVersionRequest 定义将文件恢复到特定版本的请求
+	// RevertFileVersionRequest defines the request for reverting a file to a specific version
 	RevertFileVersionRequest {
 		FileID        string `path:"fileId"`
-		Version       int    `json:"version"` // 要恢复到的版本号
-		CommitMessage string `json:"commitMessage,optional"` // 恢复操作的提交信息
+		Version       int    `json:"version"` // Version number to revert to
+		CommitMessage string `json:"commitMessage,optional"` // Commit message for the revert operation
 	}
-	// RevertFileVersionResponse 定义恢复文件版本后的响应
+	// RevertFileVersionResponse defines the response after reverting a file version
 	RevertFileVersionResponse {
-		Metadata FileMetadata `json:"metadata"` // 恢复后，文件当前的元数据（版本已更新）
+		Metadata FileMetadata `json:"metadata"` // Current file metadata after reverting (version is updated)
 		Message  string       `json:"message"`
 	}
-	// FileVersionDiffRequest 定义获取版本差异的请求
+	// FileVersionDiffRequest defines the request for getting version differences
 	FileVersionDiffRequest {
 		FileID        string `path:"fileId"`
-		BaseVersion   int    `form:"baseVersion"` // 基础版本号
-		TargetVersion int    `form:"targetVersion"` // 目标版本号
+		BaseVersion   int    `form:"baseVersion"` // Base version number
+		TargetVersion int    `form:"targetVersion"` // Target version number
 	}
-	// FileVersionDiffResponse 定义版本差异的响应
-	// 差异的具体格式取决于文件类型，这里用string表示通用文本差异
+	// FileVersionDiffResponse defines the response for version differences
+	// The specific format of the differences depends on the file type, here a string represents generic text differences
 	FileVersionDiffResponse {
 		FileID        string `json:"fileId"`
 		BaseVersion   int    `json:"baseVersion"`
 		TargetVersion int    `json:"targetVersion"`
-		DiffContent   string `json:"diffContent"` // 差异内容 (例如 unified diff 格式)
+		DiffContent   string `json:"diffContent"` // Difference content (e.g., unified diff format)
 		Message       string `json:"message,optional"`
 	}
 )
 
 @server (
-	// jwt:    Auth // 表示此服务块中的路由需要JWT身份验证
-	group:  file // 将路由分组到 'file' 前缀下
-	prefix: /api/v1/files // 这些API的基础路径
+	// jwt:    Auth // Indicates that routes in this service block require JWT authentication
+	group:  file // Group routes under the 'file' prefix
+	prefix: /api/v1/files // Base path for these APIs
 )
 service NoteVaultService {
-	@doc "上传一个新文件。实际文件以 multipart/form-data 形式发送。"
+	@doc "Upload a new file. The actual file is sent as multipart/form-data."
 	@handler uploadFile
 	post /upload (FileUploadRequest) returns (FileUploadResponse)
 
-	@doc "根据文件ID下载文件。可选下载特定版本。"
+	@doc "Download a file by file ID. Optionally download a specific version."
 	@handler downloadFile
-	get /download/:fileId (FileDownloadRequest) // 响应是文件流
+	get /download/:fileId (FileDownloadRequest) // Response is a file stream
 
-	@doc "根据文件ID删除文件。"
+	@doc "Delete a file by file ID. Optionally delete a specific version."
 	@handler deleteFile
 	delete /:fileId (FileDeleteRequest) returns (FileDeleteResponse)
 
-	@doc "批量删除文件。"
+	@doc "Batch delete files."
 	@handler batchDeleteFiles
 	post /batch/delete (BatchDeleteFilesRequest) returns (BatchDeleteFilesResponse)
 
-	@doc "获取特定文件的元数据。可选获取特定版本的元数据。"
+	@doc "Get metadata for a specific file. Optionally get metadata for a specific version."
 	@handler getFileMetadata
 	get /metadata/:fileId (GetFileMetadataRequest) returns (GetFileMetadataResponse)
 
-	@doc "更新特定文件的元数据。这通常会创建一个新版本。"
+	@doc "Update metadata for a specific file. This typically creates a new version."
 	@handler updateFileMetadata
 	put /metadata/:fileId (UpdateFileMetadataRequest) returns (UpdateFileMetadataResponse)
 
-	@doc "列出文件，支持分页、筛选和排序。"
+	@doc "List files with support for pagination, filtering, and sorting."
 	@handler listFiles
 	get / (ListFilesRequest) returns (ListFilesResponse)
 
-	@doc "获取文件的版本历史。"
+	@doc "Get version history for a file."
 	@handler getFileVersions
 	get /:fileId/versions (GetFileVersionsRequest) returns (GetFileVersionsResponse)
 
-	@doc "将文件恢复到特定版本。"
+	@doc "Revert a file to a specific version."
 	@handler revertFileVersion
 	post /:fileId/versions/revert (RevertFileVersionRequest) returns (RevertFileVersionResponse)
 
-	@doc "(高级) 获取文件两个版本之间的差异信息 (主要针对文本文件)。"
+	@doc "(Advanced) Get differences between two versions of a file (mainly for text files)."
 	@handler getFileVersionDiff
 	get /:fileId/versions/diff (FileVersionDiffRequest) returns (FileVersionDiffResponse)
 }
 
-// 如果计划使用JWT中间件，即使暂时为空，也需要定义Auth结构体。
-// 如果指定了 `jwt: Auth`，go-zero 要求这样做。
+// If you plan to use JWT middleware, you need to define the Auth struct, even if it's temporarily empty.
+// If you specify `jwt: Auth`, go-zero requires this.
 type Auth {
-	AccessKey string `header:"Authorization"` // JWT令牌通常放在 Authorization 请求头中
+	AccessKey string `header:"Authorization"` // JWT token is typically placed in the Authorization header
 }
 

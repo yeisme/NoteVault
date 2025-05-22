@@ -51,10 +51,10 @@
 - **后端**: Go (go-zero框架)
 - **数据库**:
   - **元数据存储**: MySQL / PostgreSQL / SQLite
-  - **索引**: Elasticsearch (可选, 用于高级搜索)
+  - **索引**: meilisearch / typesense (可选, 用于高级搜索)
   - **ORM**: GORM
 - **对象存储**: MinIO / JuiceFS / AWS S3 / 阿里云 OSS
-- **消息队列**: Kafka / RabbitMQ (可选, 用于异步任务处理，如文件转码、索引更新)
+- **消息队列**: Kafka / RabbitMQ / NATS (可选, 用于异步任务处理，如文件转码、索引更新)
 - **缓存**: Redis (可选, 用于热点数据缓存)
 
 ## 部署架构
@@ -62,4 +62,4 @@
 - **单体服务**: 初期可采用单体应用部署，简化运维。
 - **微服务架构**: 随着业务发展，可将文件存储、元数据管理、版本控制等拆分为独立微服务。
 - **容器化**: 使用 Docker 和 Kubernetes 进行容器化部署和管理。
-- **网关**: API Gateway (如 Nginx, Kong, go-zero 自带网关) 统一入口，负责鉴权、路由、限流等。
+- **网关**: API Gateway (如 Nginx, Kong, Traefik, Tyk) 统一入口，负责鉴权、路由、限流等。

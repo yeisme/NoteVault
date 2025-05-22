@@ -15,6 +15,8 @@ type FileVersion struct {
 	Path          string `gorm:"column:path;not null" json:"path"`
 	ContentType   string `gorm:"column:content_type;not null" json:"content_type"`
 	CreatedAt     int64  `gorm:"column:created_at;not null" json:"created_at"`
+	DeletedAt     int64  `gorm:"column:deleted_at" json:"deleted_at"`
+	Status        int32  `gorm:"column:status;not null" json:"status"`
 	CommitMessage string `gorm:"column:commit_message" json:"commit_message"`
 }
 
