@@ -113,11 +113,12 @@ validate:
     @echo "Configuration validation complete."
 
 # Set a Development environment with docker compose
-dev:
+docker-dev:
     @echo "Setting up development environment with Docker Compose..."
     docker-compose -f script/dev/docker-compose.yaml up -d
     @echo "Development environment is up and running."
 
+alias dev := docker-dev
 alias b := build
 alias df := dep-fmt
 alias g := gen-go

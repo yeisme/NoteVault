@@ -122,23 +122,7 @@ nfpms:
         file_info:
           mode: 0755
 
-    # 安装后执行的脚本
     # scripts:
     #   postinstall: "scripts/postinstall.sh"
     #   preremove: "scripts/preremove.sh"
     #   postremove: "scripts/postremove.sh"
-
-dockers:
-  - image_templates:
-      - "yeisme0/notevault:v{{ .Version }}"
-      - "yeisme0/notevault:latest"
-      - "yeisme0/notevault:v{{ .Major }}"
-      - "yeisme0/notevault:v{{ .Major }}.{{ .Minor }}"
-    dockerfile: Dockerfile
-    build_flag_templates:
-      - "--pull"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version=v{{.Version}}"
-    skip_push: false

@@ -183,8 +183,11 @@ type FileMetadata struct {
 	CreatedAt int64 `json:"createdAt"` // Creation time (Unix timestamp)
 	UpdatedAt int64 `json:"updatedAt"` // Update time (Unix timestamp)
 	Version int `json:"version"` // Current file version number
+	Status int16 `json:"status"` // File status: 0=normal, 1=archived, 2=trashed, 3=pending deletion
+	TrashedAt int64 `json:"trashedAt,optional"` // When the file was moved to trash (Unix timestamp)
 	Tags []string `json:"tags,optional"` // Tags
 	Description string `json:"description,optional"` // Description
+	CommitMessage string `json:"commitMessage,optional"` // Version commit message
 }
 ```
 
@@ -286,8 +289,11 @@ type FileMetadata struct {
 	CreatedAt int64 `json:"createdAt"` // Creation time (Unix timestamp)
 	UpdatedAt int64 `json:"updatedAt"` // Update time (Unix timestamp)
 	Version int `json:"version"` // Current file version number
+	Status int16 `json:"status"` // File status: 0=normal, 1=archived, 2=trashed, 3=pending deletion
+	TrashedAt int64 `json:"trashedAt,optional"` // When the file was moved to trash (Unix timestamp)
 	Tags []string `json:"tags,optional"` // Tags
 	Description string `json:"description,optional"` // Description
+	CommitMessage string `json:"commitMessage,optional"` // Version commit message
 }
 ```
 
@@ -336,8 +342,11 @@ type FileMetadata struct {
 	CreatedAt int64 `json:"createdAt"` // Creation time (Unix timestamp)
 	UpdatedAt int64 `json:"updatedAt"` // Update time (Unix timestamp)
 	Version int `json:"version"` // Current file version number
+	Status int16 `json:"status"` // File status: 0=normal, 1=archived, 2=trashed, 3=pending deletion
+	TrashedAt int64 `json:"trashedAt,optional"` // When the file was moved to trash (Unix timestamp)
 	Tags []string `json:"tags,optional"` // Tags
 	Description string `json:"description,optional"` // Description
+	CommitMessage string `json:"commitMessage,optional"` // Version commit message
 }
 ```
 

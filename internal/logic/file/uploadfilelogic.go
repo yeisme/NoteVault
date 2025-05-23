@@ -48,7 +48,6 @@ func (l *UploadFileLogic) UploadFile(req *types.FileUploadRequest) (resp *types.
 	userId, ok := l.ctx.Value("userId").(string)
 	if !ok || userId == "" {
 		userId = "notevault"
-		l.Logger.Info("test user notevault", logx.Field("userId", userId))
 	}
 
 	// frontend also check file size, but we need to check it again here

@@ -13,8 +13,9 @@ RUN apk update --no-cache && apk add --no-cache \
 
 WORKDIR /app
 
-ADD go.mod .
-ADD go.sum .
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY . .
 
 RUN just build release

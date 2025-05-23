@@ -153,6 +153,9 @@ erDiagram
         string Path
         int64 CreatedAt
         int64 UpdatedAt
+        int64 DeletedAt
+        int16 Status
+        int64 TrashedAt
         int32 CurrentVersion
         string Description
     }

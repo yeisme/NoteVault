@@ -152,9 +152,14 @@
                       "path",
                       "createdAt",
                       "updatedAt",
-                      "version"
+                      "version",
+                      "status"
                     ],
                     "properties": {
+                      "commitMessage": {
+                        "description": "Version commit message",
+                        "type": "string"
+                      },
                       "contentType": {
                         "description": "MIME type, e.g., \"application/pdf\", \"image/jpeg\", \"text/plain\"",
                         "type": "string"
@@ -187,12 +192,20 @@
                         "description": "File size in bytes",
                         "type": "integer"
                       },
+                      "status": {
+                        "description": "File status: 0=normal, 1=archived, 2=trashed, 3=pending deletion",
+                        "type": "integer"
+                      },
                       "tags": {
                         "description": "Tags",
                         "type": "array",
                         "items": {
                           "type": "string"
                         }
+                      },
+                      "trashedAt": {
+                        "description": "When the file was moved to trash (Unix timestamp)",
+                        "type": "integer"
                       },
                       "updatedAt": {
                         "description": "Update time (Unix timestamp)",
@@ -373,9 +386,14 @@
                     "path",
                     "createdAt",
                     "updatedAt",
-                    "version"
+                    "version",
+                    "status"
                   ],
                   "properties": {
+                    "commitMessage": {
+                      "description": "Version commit message",
+                      "type": "string"
+                    },
                     "contentType": {
                       "description": "MIME type, e.g., \"application/pdf\", \"image/jpeg\", \"text/plain\"",
                       "type": "string"
@@ -408,12 +426,20 @@
                       "description": "File size in bytes",
                       "type": "integer"
                     },
+                    "status": {
+                      "description": "File status: 0=normal, 1=archived, 2=trashed, 3=pending deletion",
+                      "type": "integer"
+                    },
                     "tags": {
                       "description": "Tags",
                       "type": "array",
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "trashedAt": {
+                      "description": "When the file was moved to trash (Unix timestamp)",
+                      "type": "integer"
                     },
                     "updatedAt": {
                       "description": "Update time (Unix timestamp)",
@@ -504,9 +530,14 @@
                     "path",
                     "createdAt",
                     "updatedAt",
-                    "version"
+                    "version",
+                    "status"
                   ],
                   "properties": {
+                    "commitMessage": {
+                      "description": "Version commit message",
+                      "type": "string"
+                    },
                     "contentType": {
                       "description": "MIME type, e.g., \"application/pdf\", \"image/jpeg\", \"text/plain\"",
                       "type": "string"
@@ -539,12 +570,20 @@
                       "description": "File size in bytes",
                       "type": "integer"
                     },
+                    "status": {
+                      "description": "File status: 0=normal, 1=archived, 2=trashed, 3=pending deletion",
+                      "type": "integer"
+                    },
                     "tags": {
                       "description": "Tags",
                       "type": "array",
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "trashedAt": {
+                      "description": "When the file was moved to trash (Unix timestamp)",
+                      "type": "integer"
                     },
                     "updatedAt": {
                       "description": "Update time (Unix timestamp)",
@@ -898,9 +937,14 @@
                     "path",
                     "createdAt",
                     "updatedAt",
-                    "version"
+                    "version",
+                    "status"
                   ],
                   "properties": {
+                    "commitMessage": {
+                      "description": "Version commit message",
+                      "type": "string"
+                    },
                     "contentType": {
                       "description": "MIME type, e.g., \"application/pdf\", \"image/jpeg\", \"text/plain\"",
                       "type": "string"
@@ -933,12 +977,20 @@
                       "description": "File size in bytes",
                       "type": "integer"
                     },
+                    "status": {
+                      "description": "File status: 0=normal, 1=archived, 2=trashed, 3=pending deletion",
+                      "type": "integer"
+                    },
                     "tags": {
                       "description": "Tags",
                       "type": "array",
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "trashedAt": {
+                      "description": "When the file was moved to trash (Unix timestamp)",
+                      "type": "integer"
                     },
                     "updatedAt": {
                       "description": "Update time (Unix timestamp)",
@@ -961,7 +1013,7 @@
       }
     }
   },
-  "x-date": "2025-05-22 20:51:48",
+  "x-date": "2025-05-23 21:56:43",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",
