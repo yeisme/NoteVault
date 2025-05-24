@@ -1,13 +1,27 @@
 package mq
 
 import (
-	"fmt"
-
 	"github.com/yeisme/notevault/internal/config"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
 var currentMQType string
+
+// MQClientInterface 定义了所有消息队列客户端应实现的接口
+type MQClientInterface interface {
+	Type() string
+	IsAvailable() bool
+}
+
+// MQClient 统一的客户端结构体
+type MQClient struct {
+	Client MQClientInterface
+}
+
+type NullMQClient struct{}
+
+func (n *NullMQClient) Type() string      { return "null" }
+func (n *NullMQClient) IsAvailable() bool { return false }
 
 // InitMQ initializes the message queue based on the provided configuration
 // Note: This function will be called before using any MQ functionality
@@ -33,31 +47,26 @@ func InitMQ(mqConfig config.MQConfig) error {
 	return nil
 }
 
-// GetMQClient returns the appropriate MQ client based on what was initialized
-// if the MQ type is not supported or not initialized, it returns an error and nil client
-func GetMQClient() (any, error) {
+// GetMQClient returns the appropriate MQ client
+func GetMQClient() *MQClient {
 	switch currentMQType {
 	case "nats":
-		conn, err := GetNATSConn()
+		conn, err := getNATSConn()
 		if err != nil {
-			return nil, fmt.Errorf("NATS client was configured but not properly initialized: %w", err)
+			logx.Debugf("Failed to get NATS connection: %v", err)
+			return &MQClient{Client: &NullMQClient{}}
 		}
-		return conn, nil
-	default:
-		return nil, fmt.Errorf("no message queue client available, type configured: %s", currentMQType)
-	}
-}
 
-// Close closes any active message queue connections
-func Close() {
-	// Close connections based on the current MQ type
-	switch currentMQType {
-	case "nats":
-		if natsConn != nil {
-			natsConn.Close()
-			logx.Info("NATS connection closed")
+		js, err := getJetStreamContext()
+		if err != nil {
+			logx.Debugf("No JetStream context available: %v", err)
 		}
+		natsClient := &NATSClient{
+			Conn: conn,
+			JS:   js,
+		}
+		return &MQClient{Client: natsClient}
 	default:
-		logx.Info("No active message queue connection to close")
+		return &MQClient{Client: &NullMQClient{}}
 	}
 }

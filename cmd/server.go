@@ -44,6 +44,20 @@ var (
 				}
 			}
 
+			// 测试ServiceContext初始化
+			logx.Info("Testing ServiceContext initialization...")
+			ctx := svc.NewServiceContext(c)
+			if ctx == nil {
+				if *dryrun {
+					logx.Error("ServiceContext initialization failed")
+					logx.Info("Running in dry run mode, continuing despite ServiceContext errors")
+				} else {
+					logx.Error("Failed to create ServiceContext")
+					return nil
+				}
+			} else {
+				logx.Debugf("MQ Client Type: %s, Available: %v", ctx.MQ.Client.Type(), ctx.MQ.Client.IsAvailable())
+			}
 			// 如果是干启动模式，输出配置检查成功并退出
 			if *dryrun {
 				logx.Info("Configuration check completed, Dry run completed, exiting...")
@@ -55,7 +69,6 @@ var (
 
 			// 添加全局中间件
 
-			ctx := svc.NewServiceContext(c)
 			handler.RegisterHandlers(server, ctx)
 			logx.Infof("Starting server at %s:%d...\n", c.Host, c.Port)
 			server.Start()

@@ -15,7 +15,15 @@ var (
 	jsCtx    nats.JetStreamContext
 )
 
-func GetNATSConn() (*nats.Conn, error) {
+type NATSClient struct {
+	Conn *nats.Conn
+	JS   nats.JetStreamContext
+}
+
+func (n *NATSClient) Type() string      { return "nats" }
+func (n *NATSClient) IsAvailable() bool { return n.Conn != nil && n.Conn.Status() == nats.CONNECTED }
+
+func getNATSConn() (*nats.Conn, error) {
 	if natsConn == nil {
 		return nil, fmt.Errorf("NATS client was configured but not properly initialized")
 	}
@@ -128,7 +136,7 @@ func initNats(natsConfig config.NATSConfig) {
 	}
 }
 
-func GetJetStreamContext() (nats.JetStreamContext, error) {
+func getJetStreamContext() (nats.JetStreamContext, error) {
 	if jsCtx == nil {
 		return nil, fmt.Errorf("JetStream not initialized or not enabled in configuration")
 	}
